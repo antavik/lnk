@@ -30,7 +30,7 @@ def parse_ttl(ttl_str: str) -> tuple[int, TimeUnit]:
     for units, match in groups.items():
         if match is not None:
             break
-    print(number, units)
+
     return int(number), units
 
 
