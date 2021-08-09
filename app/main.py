@@ -5,13 +5,16 @@ import asyncio
 import constants as const
 import handlers
 
+from urllib.parse import urljoin
+
 from aiohttp import web
 from aiocache import Cache
 
 from exceptions import InvalidParemeters
 
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
-
+CACHE = os.getenv('CACHE', 'memory://')
+SERVICE_URL = os.getenv('SERVICE_URL')
 
 with open(const.UI_TEMPLATE_FILEPATH) as template:
     UI_TEMPLATE = template.read()
@@ -56,14 +59,19 @@ async def shortify(request):
             text='Uid already exists'
         )
 
+    if SERVICE_URL is None:
+        url = str(request.url / uid)
+    else:
+        url = urljoin(SERVICE_URL, uid)
+
     return web.Response(
         content_type='text/plain',
-        text=str(request.url / uid)
+        text=url
     )
 
 
 async def init_cache(app):
-    cache = Cache(Cache.MEMORY)
+    cache = Cache.from_url(CACHE)
 
     app['cache'] = cache
 

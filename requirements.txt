@@ -1,2 +1,2 @@
 aiohttp==3.7.4
-aiocache==0.11.1
+aiocache[redis]==0.11.1
