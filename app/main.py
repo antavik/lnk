@@ -17,7 +17,7 @@ with open(const.UI_TEMPLATE_FILEPATH) as template:
     UI_TEMPLATE = template.read()
 
 routes = web.RouteTableDef()
-routes.static('/static', const.STATIC_PATH)
+# routes.static('/static', const.STATIC_PATH)
 
 
 @routes.get('/ping')
