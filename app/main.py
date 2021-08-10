@@ -21,7 +21,7 @@ with open(const.UI_TEMPLATE_FILEPATH) as template:
 routes = web.RouteTableDef()
 
 
-@routes.get('/ping')
+@routes.get('/health/ping')
 async def view(request):
     return web.Response(content_type='text/plain', text='pong')
 
