@@ -14,13 +14,11 @@ from exceptions import InvalidParemeters
 
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
 CACHE = os.getenv('CACHE', 'memory://')
-SERVICE_URL = os.getenv('SERVICE_URL')
 
 with open(const.UI_TEMPLATE_FILEPATH) as template:
     UI_TEMPLATE = template.read()
 
 routes = web.RouteTableDef()
-# routes.static('/static', const.STATIC_PATH)
 
 
 @routes.get('/ping')
@@ -59,14 +57,9 @@ async def shortify(request):
             text='Uid already exists'
         )
 
-    if SERVICE_URL is None:
-        url = str(request.url / uid)
-    else:
-        url = urljoin(SERVICE_URL, uid)
-
     return web.Response(
         content_type='text/plain',
-        text=url
+        text=uid
     )
 
 
