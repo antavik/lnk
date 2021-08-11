@@ -41,6 +41,12 @@ async def redirect(request):
 
 @routes.post('/')
 async def shortify(request):
+    if not request.can_read_body:
+        return web.HTTPBadRequest(
+            content_type='text/plain',
+            text='Empty body'
+        )
+
     cache = request.app['cache']
     data = await request.json()
 
@@ -54,7 +60,7 @@ async def shortify(request):
     except ValueError:
         return web.HTTPConflict(
             content_type='text/plain',
-            text='Uid already exists'
+            text='UID already exists'
         )
 
     return web.Response(

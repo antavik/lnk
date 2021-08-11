@@ -14,7 +14,12 @@ async def redirect(uid, cache):
     return url
 
 async def shortify(data, cache):
-    url = data['url']
+    try:
+        url = data['url']
+    except KeyError as e:
+        logging.error(e)
+        raise InvalidParemeters('No URL parameter')
+
     uid = data.get('uid', uuid.uuid1().hex)
 
     ttl_str = data.get('ttl')
@@ -25,7 +30,7 @@ async def shortify(data, cache):
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
             logging.error(e)
-            raise InvalidParemeters(f'Invalid input TTL praremeter')
+            raise InvalidParemeters('Invalid input TTL praremeter')
         else:
             ttl = calc_seconds(number, unit)
 
