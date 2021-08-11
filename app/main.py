@@ -2,10 +2,7 @@ import os
 import logging
 import asyncio
 
-import constants as const
 import handlers
-
-from urllib.parse import urljoin
 
 from aiohttp import web
 from aiocache import Cache
@@ -14,9 +11,6 @@ from exceptions import InvalidParemeters
 
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
 CACHE = os.getenv('CACHE', 'memory://')
-
-with open(const.UI_TEMPLATE_FILEPATH) as template:
-    UI_TEMPLATE = template.read()
 
 routes = web.RouteTableDef()
 
