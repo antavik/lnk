@@ -8,8 +8,7 @@ from exceptions import InvalidParemeters
 
 
 async def redirect(uid, cache):
-    key = f'cache:{uid}'
-    url = await cache.get(key)
+    url = await cache.get(f'cache:{uid}')
 
     return url
 
@@ -30,12 +29,10 @@ async def shortify(data, cache):
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
             logging.error(e)
-            raise InvalidParemeters('Invalid input TTL praremeter')
+            raise InvalidParemeters('Invalid TTL praremeter')
         else:
             ttl = calc_seconds(number, unit)
 
-    key = f'cache:{uid}'
-
-    await cache.add(key, url, ttl=ttl)
+    await cache.add(f'cache:{uid}', url, ttl=ttl)
 
     return uid
