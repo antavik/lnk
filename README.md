@@ -1,5 +1,5 @@
 # ✂️ lnk
-Small API to cut links.
+Small API to cut links. Runs over memory cache or Redis (for persistant links).
 
 ## Example
 1. Get link
@@ -21,7 +21,3 @@ You'll get response with a cutted link.
 
 ## Run application in _dev_ mode
 ``` make run```
-
-## 🎯 TODO
-- [ ] Fix response if app run in a docker conteiner (bug with host url)
-- [ ] Persistent links
