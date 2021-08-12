@@ -16,8 +16,8 @@ async def shortify(data, cache):
     try:
         url = data['url']
     except KeyError as e:
-        logging.error(e)
-        raise InvalidParemeters('No URL parameter')
+        logging.warning('No URL parameter: %s', e)
+        raise InvalidParemeters
 
     uid = data.get('uid', uuid.uuid1().hex)
 
@@ -28,8 +28,8 @@ async def shortify(data, cache):
         try:
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
-            logging.error(e)
-            raise InvalidParemeters('Invalid TTL praremeter')
+            logging.warning('Invalid TTL praremeter: %s', e)
+            raise InvalidParemeters
         else:
             ttl = calc_seconds(number, unit)
 

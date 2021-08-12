@@ -46,10 +46,10 @@ async def shortify(request):
 
     try:
         uid = await handlers.shortify(data, cache)
-    except InvalidParemeters as e:
+    except InvalidParemeters:
         return web.HTTPBadRequest(
             content_type='text/plain',
-            text=str(e)
+            text='Invalid input paremeter'
         )
     except ValueError:
         return web.HTTPConflict(
