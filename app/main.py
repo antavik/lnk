@@ -9,7 +9,7 @@ import handlers
 from aiohttp import web
 from aiocache import Cache
 
-from exceptions import InvalidParemeters
+from exceptions import InvalidParameters
 
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
 CACHE = os.getenv('CACHE', 'memory://')

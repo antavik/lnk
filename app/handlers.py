@@ -6,7 +6,7 @@ import constants as const
 from aiocache import Cache
 
 from utils import parse_ttl, calc_seconds
-from exceptions import InvalidParemeters
+from exceptions import InvalidParameters
 
 
 async def redirect(uid: str, cache: Cache) -> str:
@@ -32,7 +32,7 @@ async def shortify(data: dict, cache: Cache) -> str:
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
             logging.warning('Invalid TTL praremeter: %s', e)
-            raise InvalidParemeters
+            raise InvalidParameters
         else:
             ttl = calc_seconds(number, unit)
 
