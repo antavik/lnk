@@ -9,7 +9,7 @@ TimeUnit = Literal[
 ]
 
 
-def parse_ttl(ttl_str: str) -> tuple[int, TimeUnit]:
+def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
     number = None
     units = None
     pattern = (
@@ -20,9 +20,9 @@ def parse_ttl(ttl_str: str) -> tuple[int, TimeUnit]:
         f'(?P<{TU.SECONDS.value}>s))'
     )
 
-    match = re.fullmatch(pattern, ttl_str)
+    match = re.fullmatch(pattern, ttl)
     if match is None:
-        raise Exception(f'Invalid ttl option {ttl_str}')
+        raise Exception(f'Invalid ttl option {ttl}')
 
     groups = match.groupdict()
     number = groups.pop('number')

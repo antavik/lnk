@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 import os
 import logging
 import asyncio
@@ -12,16 +14,18 @@ from exceptions import InvalidParemeters
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
 CACHE = os.getenv('CACHE', 'memory://')
 
+os.environ.clear()
+
 routes = web.RouteTableDef()
 
 
 @routes.get('/health/ping')
-async def view(request):
+async def view(request: web.Request) -> web.Response:
     return web.Response(content_type='text/plain', text='pong')
 
 
 @routes.get('/{uid}')
-async def redirect(request):
+async def redirect(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
     cache = request.app['cache']
 
@@ -34,7 +38,7 @@ async def redirect(request):
 
 
 @routes.post('/')
-async def shortify(request):
+async def shortify(request: web.Request) -> web.Response:
     if not request.can_read_body:
         return web.HTTPBadRequest(
             content_type='text/plain',
@@ -63,13 +67,13 @@ async def shortify(request):
     )
 
 
-async def init_cache(app):
+async def init_cache(app: web.Application):
     cache = Cache.from_url(CACHE)
 
     app['cache'] = cache
 
 
-async def close_cache(app):
+async def close_cache(app: web.Application):
     await app['cache'].close()
 
 

@@ -3,16 +3,19 @@ import uuid
 
 import constants as const
 
+from aiocache import Cache
+
 from utils import parse_ttl, calc_seconds
 from exceptions import InvalidParemeters
 
 
-async def redirect(uid, cache):
+async def redirect(uid: str, cache: Cache) -> str:
     url = await cache.get(f'cache:{uid}')
 
     return url
 
-async def shortify(data, cache):
+
+async def shortify(data: dict, cache: Cache) -> str:
     try:
         url = data['url']
     except KeyError as e:
