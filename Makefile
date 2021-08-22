@@ -2,7 +2,7 @@ PWD=$(shell pwd)
 PORT=8010
 USER=app
 
-run-rebuild: build run
+all: build run
 
 run:
 	docker run -it -p $(PORT):$(PORT) \
