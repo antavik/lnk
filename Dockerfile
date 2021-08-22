@@ -11,12 +11,12 @@ ENV PORT=$PORT
 COPY ./app/ /home/$USER/app/
 COPY ./requirements.txt /etc/
 
+RUN useradd -U -s /bin/bash $USER && \
+    chown -R $USER:$USER /home/$USER/
+
 WORKDIR /home/$USER/app
 
 RUN pip install --no-cache-dir -r /etc/requirements.txt
-
-RUN useradd -m -U -s /bin/bash $USER && \
-    chown -R $USER:$USER /home/$USER/
 
 USER $USER
 
