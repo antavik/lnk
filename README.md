@@ -4,7 +4,9 @@ Small API to cut links. Runs over memory cache or Redis (for persistant links).
 ## Example
 1. Pass your URL to API
 ```
-curl --header "Content-Type: application/json" \
+curl \
+  --header "Content-Type: application/json" \
+  --header "LNK-TOKEN: your-token" \
   --request POST \
   --data '{"url":"https://my-test-url.com", "uid":"your-uid", "ttl":"10m"}' \
   http://localhost:8010/
