@@ -12,6 +12,7 @@ from aiocache import Cache
 from exceptions import InvalidParameters
 
 HOST, PORT = os.environ['HOST'], os.environ['PORT']
+TOKEN = os.environ['TOKEN']
 CACHE = os.getenv('CACHE', 'memory://')
 
 os.environ.clear()
@@ -39,8 +40,11 @@ async def redirect(request: web.Request) -> web.Response:
 
 @routes.post('/')
 async def shortify(request: web.Request) -> web.Response:
+    if request.headers.get('LNK-TOKEN', '') == TOKEN:
+        raise web.HTTPForbidden()
+
     if not request.can_read_body:
-        return web.HTTPBadRequest(
+        raise web.HTTPBadRequest(
             content_type='text/plain',
             text='Empty body'
         )
@@ -50,13 +54,13 @@ async def shortify(request: web.Request) -> web.Response:
 
     try:
         uid = await handlers.shortify(data, cache)
-    except InvalidParemeters:
-        return web.HTTPBadRequest(
+    except InvalidParameters:
+        raise web.HTTPBadRequest(
             content_type='text/plain',
             text='Invalid input paremeter'
         )
     except ValueError:
-        return web.HTTPConflict(
+        raise web.HTTPConflict(
             content_type='text/plain',
             text='UID already exists'
         )
