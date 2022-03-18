@@ -5,7 +5,7 @@ import constants as const
 
 from aiocache import Cache
 
-from utils import parse_ttl, calc_seconds
+from utils import parse_ttl, calc_seconds, cache_key
 from exceptions import InvalidParameters
 
 
@@ -36,6 +36,18 @@ async def shortify(data: dict, cache: Cache) -> str:
         else:
             ttl = calc_seconds(number, unit)
 
-    await cache.add(f'cache:{uid}', url, ttl=ttl)
+    await cache.add(cache_key(uid), url, ttl=ttl)
 
     return uid
+
+
+async def delete(data: dict, cache: Cache) -> bool:
+    try:
+        uid = data['uid']
+    except KeyError as e:
+        logging.warning('No UID parameter: %s', e)
+        raise InvalidParameters
+
+    deleted = await cache.delete(cache_key(uid))
+
+    return bool(deleted)

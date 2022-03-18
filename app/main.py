@@ -33,7 +33,7 @@ async def redirect(request: web.Request) -> web.Response:
     url = await handlers.redirect(uid, cache)
 
     if url is not None:
-        return web.HTTPFound(url)
+        raise web.HTTPFound(url)
 
     raise web.HTTPNotFound()
 
@@ -69,6 +69,34 @@ async def shortify(request: web.Request) -> web.Response:
         content_type='text/plain',
         text=uid
     )
+
+
+@routes.delete('/')
+async def delete(request: web.Request) -> web.Response:
+    if request.headers.get('LNK-TOKEN', '') == TOKEN:
+        raise web.HTTPForbidden()
+
+    if not request.can_read_body:
+        raise web.HTTPBadRequest(
+            content_type='text/plain',
+            text='Empty body'
+        )
+
+    cache = request.app['cache']
+    data = await request.json()
+
+    try:
+        deleted = await handlers.delete(data, cache)
+    except InvalidParameters:
+        raise web.HTTPBadRequest(
+            content_type='text/plain',
+            text='Invalid input paremeter'
+        )
+
+    if deleted:
+        raise web.HTTPNoContent()
+    else:
+        raise web.HTTPNotFound()
 
 
 async def init_cache(app: web.Application):

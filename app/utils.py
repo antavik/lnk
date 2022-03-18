@@ -45,3 +45,7 @@ def calc_seconds(number: int, unit: TimeUnit) -> int:
     calc = seconds_calc[unit]
 
     return calc(number)
+
+
+def cache_key(key_str: str) -> str:
+    return f'cache:{key_str}'
