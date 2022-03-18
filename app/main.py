@@ -40,7 +40,7 @@ async def redirect(request: web.Request) -> web.Response:
 
 @routes.post('/')
 async def shortify(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN', '') == TOKEN:
+    if request.headers.get('LNK-TOKEN', '') != TOKEN:
         raise web.HTTPForbidden()
 
     if not request.can_read_body:
@@ -73,7 +73,7 @@ async def shortify(request: web.Request) -> web.Response:
 
 @routes.delete('/')
 async def delete(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN', '') == TOKEN:
+    if request.headers.get('LNK-TOKEN', '') != TOKEN:
         raise web.HTTPForbidden()
 
     if not request.can_read_body:
