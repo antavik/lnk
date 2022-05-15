@@ -16,7 +16,7 @@ RUN useradd -U -s /bin/bash $USER && \
 
 WORKDIR /home/$USER/app
 
-RUN pip install --no-cache-dir --no-deps -r /etc/requirements.txt
+RUN pip install --no-cache-dir -r /etc/requirements.txt
 
 USER $USER
 
