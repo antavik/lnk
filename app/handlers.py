@@ -10,7 +10,7 @@ from exceptions import InvalidParameters
 
 
 async def redirect(uid: str, cache: Cache) -> str:
-    url = await cache.get(f'cache:{uid}')
+    url = await cache.get(cache_key(uid))
 
     return url
 
@@ -20,7 +20,8 @@ async def shortify(data: dict, cache: Cache) -> str:
         url = data['url']
     except KeyError as e:
         logging.warning('No URL parameter: %s', e)
-        raise InvalidParemeters
+
+        raise InvalidParameters('Url is not provided')
 
     uid = data.get('uid', uuid.uuid1().hex)
 
@@ -31,8 +32,9 @@ async def shortify(data: dict, cache: Cache) -> str:
         try:
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
-            logging.warning('Invalid TTL praremeter: %s', e)
-            raise InvalidParameters
+            logging.warning('Invalid TTL parameter: %s', e)
+
+            raise InvalidParameters(str(e))
         else:
             ttl = calc_seconds(number, unit)
 

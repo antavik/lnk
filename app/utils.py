@@ -22,7 +22,7 @@ def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
 
     match = re.fullmatch(pattern, ttl)
     if match is None:
-        raise Exception(f'Invalid ttl option {ttl}')
+        raise Exception(f'Invalid ttl value: {ttl}')
 
     groups = match.groupdict()
     number = groups.pop('number')
@@ -34,7 +34,7 @@ def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
     return int(number), units
 
 
-def calc_seconds(number: int, unit: TimeUnit) -> int:
+def calc_seconds(number: int, unit: str) -> int:
     seconds_calc = {
         TU.DAYS.value: lambda d: d * 24 * 60 * 60,
         TU.HOURS.value: lambda h: h * 60 * 60,

@@ -54,12 +54,12 @@ async def shortify(request: web.Request) -> web.Response:
 
     try:
         uid = await handlers.shortify(data, cache)
-    except InvalidParameters:
+    except InvalidParameters as e:
         raise web.HTTPBadRequest(
             content_type='text/plain',
-            text='Invalid input paremeter'
+            text=f'Invalid input paremeter: {e}'
         )
-    except ValueError:
+    except ValueError as e:
         raise web.HTTPConflict(
             content_type='text/plain',
             text='UID already exists'
@@ -87,10 +87,10 @@ async def delete(request: web.Request) -> web.Response:
 
     try:
         deleted = await handlers.delete(data, cache)
-    except InvalidParameters:
+    except InvalidParameters as e:
         raise web.HTTPBadRequest(
             content_type='text/plain',
-            text='Invalid input paremeter'
+            text=f'Invalid input paremeter: {e}'
         )
 
     if deleted:
