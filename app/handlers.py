@@ -10,15 +10,12 @@ from exceptions import InvalidParameters
 
 
 async def redirect(uid: str, cache: Cache) -> str:
-    url = await cache.get(cache_key(uid))
-
-    return url
+    return await cache.get(cache_key(uid))
 
 
 async def shortify(data: dict, cache: Cache) -> str:
-    try:
-        url = data['url']
-    except KeyError as e:
+    url = data.get('url')
+    if not url:
         raise InvalidParameters('Url is not provided')
 
     ttl_str = data.get('ttl')
