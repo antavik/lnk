@@ -38,7 +38,10 @@ async def redirect(request: web.Request) -> web.Response:
     if url is not None:
         raise web.HTTPFound(url)
 
-    raise web.HTTPNotFound()
+    raise web.HTTPNotFound(
+        content_type='text/plain',
+        text=f'UID {uid} not found'
+    )
 
 
 @routes.post('/')
@@ -68,10 +71,7 @@ async def shortify(request: web.Request) -> web.Response:
             text='UID already exists'
         )
 
-    return web.Response(
-        content_type='text/plain',
-        text=uid
-    )
+    return web.Response(content_type='text/plain', text=uid)
 
 
 @routes.delete('/{uid}')
@@ -85,9 +85,15 @@ async def delete(request: web.Request) -> web.Response:
     deleted = await handlers.delete(uid, cache)
 
     if deleted:
-        raise web.HTTPNoContent()
+        raise web.HTTPNoContent(
+            content_type='text/plain',
+            text=f'UID {uid} removed'
+        )
     else:
-        raise web.HTTPNotFound()
+        raise web.HTTPNotFound(
+            content_type='text/plain',
+            text=f'UID {uid} not found'
+        )
 
 
 async def init_cache(app: web.Application):

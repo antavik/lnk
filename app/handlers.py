@@ -19,11 +19,7 @@ async def shortify(data: dict, cache: Cache) -> str:
     try:
         url = data['url']
     except KeyError as e:
-        logging.warning('No URL parameter: %s', e)
-
         raise InvalidParameters('Url is not provided')
-
-    uid = data.get('uid', uuid.uuid1().hex)
 
     ttl_str = data.get('ttl')
     if ttl_str is None:
@@ -34,11 +30,11 @@ async def shortify(data: dict, cache: Cache) -> str:
         try:
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
-            logging.warning('Invalid TTL parameter: %s', e)
-
             raise InvalidParameters(e)
         else:
             ttl = calc_seconds(number, unit)
+
+    uid = data.get('uid', uuid.uuid1().hex)
 
     await cache.add(cache_key(uid), url, ttl=ttl)
 
