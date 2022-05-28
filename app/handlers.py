@@ -28,13 +28,15 @@ async def shortify(data: dict, cache: Cache) -> str:
     ttl_str = data.get('ttl')
     if ttl_str is None:
         ttl = const.DEFAULT_TTL
+    elif ttl_str == const.INF:
+        ttl = None
     else:
         try:
             number, unit = parse_ttl(ttl_str)
         except Exception as e:
             logging.warning('Invalid TTL parameter: %s', e)
 
-            raise InvalidParameters(str(e))
+            raise InvalidParameters(e)
         else:
             ttl = calc_seconds(number, unit)
 
@@ -43,13 +45,7 @@ async def shortify(data: dict, cache: Cache) -> str:
     return uid
 
 
-async def delete(data: dict, cache: Cache) -> bool:
-    try:
-        uid = data['uid']
-    except KeyError as e:
-        logging.warning('No UID parameter: %s', e)
-        raise InvalidParameters
-
+async def delete(uid: str, cache: Cache) -> bool:
     deleted = await cache.delete(cache_key(uid))
 
     return bool(deleted)

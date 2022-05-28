@@ -42,7 +42,10 @@ def calc_seconds(number: int, unit: str) -> int:
         TU.SECONDS.value: lambda s: s,
     }
 
-    calc = seconds_calc[unit]
+    try:
+        calc = seconds_calc[unit]
+    except KeyError as e:
+        raise ValueError(f'Invalid unit argument value: {unit}')
 
     return calc(number)
 

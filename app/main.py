@@ -11,8 +11,8 @@ from aiocache import Cache
 
 from exceptions import InvalidParameters
 
-HOST, PORT = os.environ['HOST'], os.environ['PORT']
 TOKEN = os.environ['TOKEN']
+HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')
 
 os.environ.clear()
@@ -20,7 +20,7 @@ os.environ.clear()
 routes = web.RouteTableDef()
 
 
-@routes.get('/health/ping')
+@routes.get('/ping')
 async def view(request: web.Request) -> web.Response:
     return web.Response(content_type='text/plain', text='pong')
 
@@ -28,6 +28,9 @@ async def view(request: web.Request) -> web.Response:
 @routes.get('/{uid}')
 async def redirect(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
+    if not uid:
+        raise web.HTTPNotFound()
+
     cache = request.app['cache']
 
     url = await handlers.redirect(uid, cache)
@@ -49,15 +52,15 @@ async def shortify(request: web.Request) -> web.Response:
             text='Empty body'
         )
 
-    cache = request.app['cache']
     data = await request.json()
+    cache = request.app['cache']
 
     try:
         uid = await handlers.shortify(data, cache)
     except InvalidParameters as e:
         raise web.HTTPBadRequest(
             content_type='text/plain',
-            text=f'Invalid input paremeter: {e}'
+            text=f'Invalid input parameter: {e}'
         )
     except ValueError as e:
         raise web.HTTPConflict(
@@ -71,27 +74,18 @@ async def shortify(request: web.Request) -> web.Response:
     )
 
 
-@routes.delete('/')
+@routes.delete('/{uid}')
 async def delete(request: web.Request) -> web.Response:
     if request.headers.get('LNK-TOKEN', '') != TOKEN:
         raise web.HTTPForbidden()
 
-    if not request.can_read_body:
-        raise web.HTTPBadRequest(
-            content_type='text/plain',
-            text='Empty body'
-        )
+    uid = request.match_info['uid']
+    if not uid:
+        raise web.HTTPNotFound()
 
     cache = request.app['cache']
-    data = await request.json()
 
-    try:
-        deleted = await handlers.delete(data, cache)
-    except InvalidParameters as e:
-        raise web.HTTPBadRequest(
-            content_type='text/plain',
-            text=f'Invalid input paremeter: {e}'
-        )
+    deleted = await handlers.delete(uid, cache)
 
     if deleted:
         raise web.HTTPNoContent()
