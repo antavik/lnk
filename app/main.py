@@ -12,6 +12,9 @@ from aiocache import Cache
 from exceptions import InvalidParameters
 
 TOKEN = os.environ['TOKEN']
+if not TOKEN:
+    raise Exception('Token should be valid string')
+
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')
 
@@ -20,7 +23,7 @@ os.environ.clear()
 routes = web.RouteTableDef()
 
 
-@routes.get('/ping')
+@routes.get('/health/ping')
 async def view(request: web.Request) -> web.Response:
     return web.Response(content_type='text/plain', text='pong')
 
@@ -28,9 +31,6 @@ async def view(request: web.Request) -> web.Response:
 @routes.get('/{uid}')
 async def redirect(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
-    if not uid:
-        raise web.HTTPNotFound()
-
     cache = request.app['cache']
 
     url = await handlers.redirect(uid, cache)
@@ -43,7 +43,7 @@ async def redirect(request: web.Request) -> web.Response:
 
 @routes.post('/')
 async def shortify(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN', '') != TOKEN:
+    if request.headers.get('LNK-TOKEN') != TOKEN:
         raise web.HTTPForbidden()
 
     if not request.can_read_body:
@@ -76,13 +76,10 @@ async def shortify(request: web.Request) -> web.Response:
 
 @routes.delete('/{uid}')
 async def delete(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN', '') != TOKEN:
+    if request.headers.get('LNK-TOKEN') != TOKEN:
         raise web.HTTPForbidden()
 
     uid = request.match_info['uid']
-    if not uid:
-        raise web.HTTPNotFound()
-
     cache = request.app['cache']
 
     deleted = await handlers.delete(uid, cache)

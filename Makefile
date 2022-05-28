@@ -1,11 +1,15 @@
 PWD=$(shell pwd)
 PORT=8010
 USER=app
+TOKEN=token
 
-all: build run
+.PHONY all dev build
 
-run:
+all: build dev
+
+dev:
 	docker run -it -p $(PORT):$(PORT) \
+	-e TOKEN=$(TOKEN) \
 	--mount type=bind,source=$(PWD)/app,target=/home/$(USER)/app \
 	lnk python main.py
 
