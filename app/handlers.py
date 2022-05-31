@@ -16,7 +16,7 @@ async def redirect(uid: str, cache: Cache) -> str:
 async def shortify(data: dict, cache: Cache) -> str:
     url = data.get('url')
     if not url:
-        raise InvalidParameters('Url is not provided')
+        raise InvalidParameters('Url not provided')
 
     ttl_str = data.get('ttl')
     if ttl_str is None:
