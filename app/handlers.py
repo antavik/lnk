@@ -14,15 +14,11 @@ from exceptions import InvalidParameters
 
 
 async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
-    url = await cache.get(cache_key(uid))
-
-    return url
+    return await cache.get(cache_key(uid))
 
 
 async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:
-    url, data = await cache.multi_get((cache_key(uid), clip_cache_key(uid)))
-
-    return (url, data)
+    return await cache.multi_get((cache_key(uid), clip_cache_key(uid)))
 
 
 async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
