@@ -1,15 +1,9 @@
 import re
 
-from typing import Literal
-
 from constants import TimeUnit as TU
 
-TimeUnit = Literal[
-    TU.DAYS.value, TU.DAYS.value, TU.MINUTES.value, TU.SECONDS.value
-]
 
-
-def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
+def parse_ttl(ttl: str) -> tuple[int, TU]:
     number = None
     units = None
     pattern = (
@@ -31,15 +25,15 @@ def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
         if match is not None:
             break
 
-    return (int(number), units)
+    return (int(number), TU(units))
 
 
-def calc_seconds(number: int, unit: str) -> int:
+def calc_seconds(number: int, unit: TU) -> int:
     seconds_calc = {
-        TU.DAYS.value: lambda d: d * 24 * 60 * 60,
-        TU.HOURS.value: lambda h: h * 60 * 60,
-        TU.MINUTES.value: lambda m: m * 60,
-        TU.SECONDS.value: lambda s: s,
+        TU.DAYS: lambda d: d * 24 * 60 * 60,
+        TU.HOURS: lambda h: h * 60 * 60,
+        TU.MINUTES: lambda m: m * 60,
+        TU.SECONDS: lambda s: s,
     }
 
     try:
