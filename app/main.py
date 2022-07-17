@@ -13,6 +13,7 @@ from pathlib import Path
 
 from aiohttp import web
 from aiocache import Cache
+from aiocache.serializers import JsonSerializer
 
 from exceptions import InvalidParameters
 
@@ -131,7 +132,14 @@ async def delete(request: web.Request) -> web.Response:
 
 
 async def init_cache(app: web.Application):
-    cache = Cache.from_url(CACHE)
+    if CACHE.startswith('memory://'):
+        cache = Cache.MEMORY
+    elif CACHE.startswith('redis://'):
+        cache = Cache.REDIS
+    else:
+        ValueError('invalid cache schema')
+
+    cache = Cache(cache, serializer=JsonSerializer())
 
     app['cache'] = cache
 

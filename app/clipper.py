@@ -19,6 +19,7 @@ class Client:
         self.timeout = aiohttp.ClientTimeout(total=timeout)
 
         self._retries = 2
+        self._retries_timeout = 1
 
         if self.base_url and self.token:
             self._session = aiohttp.ClientSession(
@@ -42,6 +43,8 @@ class Client:
                 )
             except Exception as e:
                 log.error('error clipping: %s', e)
+
+                asyncio.sleep(self._retries_timeout)
             else:
                 log.debug('url %s clipped', url)
 
