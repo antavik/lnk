@@ -4,7 +4,11 @@ import os
 import logging
 import asyncio
 
+import jinja2 as j2
+
 import handlers
+
+from pathlib import Path
 
 from aiohttp import web
 from aiocache import Cache
@@ -22,6 +26,16 @@ os.environ.clear()
 
 routes = web.RouteTableDef()
 
+CWD = Path.cwd()
+TEMPLATE_PATH = CWD / 'templates'
+BASE_TEMPLATE_FILENAME = 'templates'
+rendering_env = j2.Environment(
+    loader=j2.FileSystemLoader(TEMPLATE_PATH),
+    autoescape=True,
+    enable_async=True
+)
+base_template = rendering_env.get_template(BASE_TEMPLATE_FILENAME)
+
 
 @routes.get('/health/ping')
 async def view(request: web.Request) -> web.Response:
@@ -34,14 +48,18 @@ async def redirect(request: web.Request) -> web.Response:
     cache = request.app['cache']
 
     url = await handlers.redirect(uid, cache)
-
     if url is not None:
+        html = await base_template.render_async(url=url)
+
         return web.Response(
             status=301,
             headers={
                 'Location': url,
                 'Cache-Control':'private, max-age=60',
-            }
+            },
+            content_type='text/html',
+            charset='utf-8',
+            body=html
         )
 
     return web.Response(status=404, text='UID not found')
