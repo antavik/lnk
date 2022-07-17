@@ -7,6 +7,7 @@ import asyncio
 import jinja2 as j2
 
 import handlers
+import clipper
 
 from pathlib import Path
 
@@ -21,20 +22,24 @@ if not TOKEN:
 
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')
+CLIPPER_URL, CLIPPER_TOKEN =os.getenv('CLIPPER_URL'), os.getenv('CLIPPER_TOKEN')
 
 os.environ.clear()
 
-routes = web.RouteTableDef()
-
 CWD = Path.cwd()
 TEMPLATE_PATH = CWD / 'templates'
-BASE_TEMPLATE_FILENAME = 'templates'
+BASE_TEMPLATE_FILENAME = 'base.html'
+CLIP_TEMPLATE_FILENAME = 'clip.html'
+
 rendering_env = j2.Environment(
     loader=j2.FileSystemLoader(TEMPLATE_PATH),
     autoescape=True,
     enable_async=True
 )
 base_template = rendering_env.get_template(BASE_TEMPLATE_FILENAME)
+clip_template = rendering_env.get_template(CLIP_TEMPLATE_FILENAME)
+
+routes = web.RouteTableDef()
 
 
 @routes.get('/health/ping')
@@ -48,21 +53,50 @@ async def redirect(request: web.Request) -> web.Response:
     cache = request.app['cache']
 
     url = await handlers.redirect(uid, cache)
-    if url is not None:
-        html = await base_template.render_async(url=url)
+    if url is None:
+        return web.Response(status=404, text='UID not found')
 
-        return web.Response(
-            status=301,
-            headers={
-                'Location': url,
-                'Cache-Control':'private, max-age=60',
-            },
-            content_type='text/html',
-            charset='utf-8',
-            body=html
-        )
+    html = await base_template.render_async(url=url)
 
-    return web.Response(status=404, text='UID not found')
+    return web.Response(
+        status=301,
+        headers={
+            'Location': url,
+            'Cache-Control':'private, max-age=60',
+        },
+        content_type='text/html',
+        charset='utf-8',
+        body=html
+    )
+
+
+@routes.get('/{uid}/clip')
+async def redirect(request: web.Request) -> web.Response:
+    uid = request.match_info['uid']
+    cache = request.app['cache']
+    clipper = request.app['clipper']
+
+    if not clipper:
+        return web.Response(status=404, text='Clip not found')
+
+    url, data = await handlers.clip(uid, cache, clipper)
+    if url is None:
+        return web.Response(status=404, text='UID not found')
+
+    if data is None:
+        return web.Response(status=500, text='Clipping error')
+
+    html = await clip_template.render_async(url=url, data=data['content'])
+
+    return web.Response(
+        status=200,
+        headers={
+            'Cache-Control':'private, max-age=60',
+        },
+        content_type='text/html',
+        charset='utf-8',
+        body=html
+    )
 
 
 @routes.post('/')
@@ -108,8 +142,22 @@ async def init_cache(app: web.Application):
     app['cache'] = cache
 
 
+async def init_clipper(app: web.Application):
+    if CLIPPER_URL and CLIPPER_TOKEN:
+        client = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
+    else:
+        client = None
+
+    app['clipper'] = client
+
+
 async def close_cache(app: web.Application):
     await app['cache'].close()
+
+
+async def close_clipper(app: web.Application):
+    if clipper := app['clipper']:
+        await clipper.close()
 
 
 async def init_app():
@@ -117,7 +165,10 @@ async def init_app():
     app.add_routes(routes)
 
     app.on_startup.append(init_cache)
+    app.on_startup.append(init_clipper)
+
     app.on_cleanup.append(close_cache)
+    app.on_cleanup.append(close_clipper)
 
     return app
 

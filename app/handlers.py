@@ -3,6 +3,7 @@ import uuid
 import typing as t
 
 import constants as const
+import clipper
 
 from aiocache import Cache
 
@@ -10,9 +11,22 @@ from utils import parse_ttl, calc_seconds, cache_key
 from exceptions import InvalidParameters
 
 
-async def redirect(uid: str, cache: Cache) -> t.Union[str, None]:
+async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
     return await cache.get(cache_key(uid))
 
+
+async def clip(
+        uid: str,
+        cache: Cache,
+        clipper: clipper.Client
+) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:
+    url = await cache.get(cache_key(uid))
+    if url is None:
+        return (None, None)
+
+    data = await clipper.clip(url)
+
+    return (url, data)
 
 async def shortify(data: dict, cache: Cache) -> str:
     url = data.get('url')
