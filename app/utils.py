@@ -44,5 +44,9 @@ def calc_seconds(number: int, unit: TU) -> int:
     return calc(number)
 
 
-def cache_key(key_str: str) -> str:
-    return f'cache:{key_str}'
+def cache_key(key: str) -> str:
+    return f'cache:{key}'
+
+
+def clip_cache_key(key: str) -> str:
+    return f'clip:{key}'

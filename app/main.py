@@ -22,7 +22,7 @@ if not TOKEN:
 
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')
-CLIPPER_URL, CLIPPER_TOKEN =os.getenv('CLIPPER_URL'), os.getenv('CLIPPER_TOKEN')
+CLIPPER_URL, CLIPPER_TOKEN =os.getenv('CLIPPER_URL', ''), os.getenv('CLIPPER_TOKEN', '')
 
 os.environ.clear()
 
@@ -74,19 +74,12 @@ async def redirect(request: web.Request) -> web.Response:
 async def redirect(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
     cache = request.app['cache']
-    clipper = request.app['clipper']
 
-    if not clipper:
+    url, data = await handlers.clip(uid, cache)
+    if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 
-    url, data = await handlers.clip(uid, cache, clipper)
-    if url is None:
-        return web.Response(status=404, text='UID not found')
-
-    if data is None:
-        return web.Response(status=500, text='Clipping error')
-
-    html = await clip_template.render_async(url=url, data=data['content'])
+    html = await clip_template.render_async(url=url, data=data)
 
     return web.Response(
         status=200,
@@ -107,11 +100,12 @@ async def shortify(request: web.Request) -> web.Response:
     if not request.can_read_body:
         return web.Response(status=400, text='Empty body')
 
-    data = await request.post()
+    form = await request.post()
     cache = request.app['cache']
+    clipper = request.app['clipper']
 
     try:
-        uid = await handlers.shortify(data, cache)
+        uid = await handlers.shortify(form, cache, clipper)
     except InvalidParameters as e:
         return web.Response(status=400, text=f'Invalid input parameter: {e}')
     except ValueError as e:
@@ -143,10 +137,7 @@ async def init_cache(app: web.Application):
 
 
 async def init_clipper(app: web.Application):
-    if CLIPPER_URL and CLIPPER_TOKEN:
-        client = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
-    else:
-        client = None
+    client = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
 
     app['clipper'] = client
 

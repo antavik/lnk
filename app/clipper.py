@@ -3,6 +3,7 @@ import logging
 import typing as t
 
 import aiohttp
+import ujson
 
 from urllib.parse import urlparse
 
@@ -11,37 +12,43 @@ log = logging.getLogger(__name__)
 
 class Client:
 
-    def __init__(
-            self,
-            url: str,
-            token: str,
-            timeout: int = 5,
-            retry_timeout: int = 10
-    ):
+    def __init__(self, url: str, token: str, timeout: int = 3):
         self.url = urlparse(url)
         self.base_url = self.url.geturl().removesuffix(self.url.path)
         self.token = token
         self.timeout = aiohttp.ClientTimeout(total=timeout)
 
-        self._session = aiohttp.ClientSession(
-            base_url=self.base_url,
-            headers={'x-user-id': self.token},
-            timeout=self.timeout,
-            raise_for_status=True,
-        )
+        self._retries = 2
 
-    async def clip(self, url: str) -> t.Optional[dict[str, str]]:
-        try:
-            response = await self._session.post(
-                self.url.path, json={'url': url}
+        if self.base_url and self.token:
+            self._session = aiohttp.ClientSession(
+                base_url=self.base_url,
+                headers={'x-user-id': self.token},
+                timeout=self.timeout,
+                raise_for_status=True,
+                json_serialize=ujson.dumps
             )
-        except Exception as e:
-            log.error('error clipping: %s', e)
-            return
+        else:
+            self._session = None
 
-        log.debug('url %s clipped', url)
+    async def clip(self, url: str) -> dict[str, str]:
+        if self._session is None:
+            return {}
 
-        return await response.json()
+        for _ in range(self._retries):
+            try:
+                response = await self._session.post(
+                    self.url.path, json={'url': url}
+                )
+            except Exception as e:
+                log.error('error clipping: %s', e)
+            else:
+                log.debug('url %s clipped', url)
+
+                return await response.json()
+
+        return {}
 
     async def close(self):
-        await self._session.close()
+        if self._session is not None:
+            await self._session.close()
