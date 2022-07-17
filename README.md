@@ -5,10 +5,10 @@ Small API to cut links. Runs over memory cache or Redis (for persistant links).
 1. Pass your URL to API
 ```
 curl \
-  --header "Content-Type: application/json" \
-  --header "LNK-TOKEN: your-token" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --header "X-Lnk-Token: your-token" \
   --request POST \
-  --data '{"url":"https://my-test-url.com", "uid":"your-uid", "ttl":"10m"}' \
+  --data 'url=https://my-test-url.com&uid=your-uid&ttl=10m' \
   http://localhost:8010/
 ```
 You'll get response with a cutted link.
@@ -19,4 +19,4 @@ You'll get response with a cutted link.
 ```make build```
 
 ## Run application in _dev_ mode
-``` make run```
+``` make dev```
