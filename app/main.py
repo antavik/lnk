@@ -25,7 +25,7 @@ routes = web.RouteTableDef()
 
 @routes.get('/health/ping')
 async def view(request: web.Request) -> web.Response:
-    return web.Response(content_type='text/plain', text='pong')
+    return web.Response(text='pong')
 
 
 @routes.get('/{uid}')
@@ -36,48 +36,42 @@ async def redirect(request: web.Request) -> web.Response:
     url = await handlers.redirect(uid, cache)
 
     if url is not None:
-        raise web.HTTPFound(url)
+        return web.Response(
+            status=301,
+            headers={
+                'Location': url,
+                'Cache-Control':'private, max-age=60',
+            }
+        )
 
-    raise web.HTTPNotFound(
-        content_type='text/plain',
-        text=f'UID {uid} not found'
-    )
+    return web.Response(status=404, text='UID not found')
 
 
 @routes.post('/')
 async def shortify(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN') != TOKEN:
-        raise web.HTTPForbidden()
+    if request.headers.get('X-Lnk-Token') != TOKEN:
+        return web.Response(status=403)
 
     if not request.can_read_body:
-        raise web.HTTPBadRequest(
-            content_type='text/plain',
-            text='Empty body'
-        )
+        return web.Response(status=400, text='Empty body')
 
-    data = await request.json()
+    data = await request.post()
     cache = request.app['cache']
 
     try:
         uid = await handlers.shortify(data, cache)
     except InvalidParameters as e:
-        raise web.HTTPBadRequest(
-            content_type='text/plain',
-            text=f'Invalid input parameter: {e}'
-        )
+        return web.Response(status=400, text=f'Invalid input parameter: {e}')
     except ValueError as e:
-        raise web.HTTPConflict(
-            content_type='text/plain',
-            text='UID already exists'
-        )
+        return web.Response(status=409, text='UID already exists')
 
-    return web.Response(content_type='text/plain', text=uid)
+    return web.Response(status=201, text=uid)
 
 
 @routes.delete('/{uid}')
 async def delete(request: web.Request) -> web.Response:
-    if request.headers.get('LNK-TOKEN') != TOKEN:
-        raise web.HTTPForbidden()
+    if request.headers.get('X-Lnk-Token') != TOKEN:
+        return web.Response(status=403)
 
     uid = request.match_info['uid']
     cache = request.app['cache']
@@ -85,15 +79,9 @@ async def delete(request: web.Request) -> web.Response:
     deleted = await handlers.delete(uid, cache)
 
     if deleted:
-        raise web.HTTPNoContent(
-            content_type='text/plain',
-            text=f'UID {uid} removed'
-        )
-    else:
-        raise web.HTTPNotFound(
-            content_type='text/plain',
-            text=f'UID {uid} not found'
-        )
+        return web.Response(status=204, text=f'UID {uid} removed')
+
+    return web.Response(status=404, text=f'UID {uid} not found')
 
 
 async def init_cache(app: web.Application):
