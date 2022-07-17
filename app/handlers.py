@@ -1,5 +1,6 @@
 import logging
 import uuid
+import typing as t
 
 import constants as const
 
@@ -9,7 +10,7 @@ from utils import parse_ttl, calc_seconds, cache_key
 from exceptions import InvalidParameters
 
 
-async def redirect(uid: str, cache: Cache) -> str:
+async def redirect(uid: str, cache: Cache) -> t.Union[str, None]:
     return await cache.get(cache_key(uid))
 
 
