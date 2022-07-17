@@ -3,7 +3,7 @@ PORT=8010
 USER=app
 TOKEN=token
 
-.PHONY all dev build
+.PHONY: all dev build
 
 all: build dev
 
