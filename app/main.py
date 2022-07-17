@@ -132,14 +132,8 @@ async def delete(request: web.Request) -> web.Response:
 
 
 async def init_cache(app: web.Application):
-    if CACHE.startswith('memory://'):
-        cache = Cache.MEMORY
-    elif CACHE.startswith('redis://'):
-        cache = Cache.REDIS
-    else:
-        ValueError('invalid cache schema')
-
-    cache = Cache(cache, serializer=JsonSerializer())
+    cache = Cache.from_url(CACHE)
+    cache.serializer=JsonSerializer()
 
     app['cache'] = cache
 
