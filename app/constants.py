@@ -1,5 +1,7 @@
 from enum import Enum
 
+LNK = 'lnk'
+
 DEFAULT_TTL = 12 * 60 * 60  # seconds
 
 INF = 'inf'

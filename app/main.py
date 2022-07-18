@@ -8,6 +8,7 @@ import jinja2 as j2
 
 import handlers
 import clipper
+import constants as const
 
 from pathlib import Path
 
@@ -17,13 +18,15 @@ from aiocache.serializers import JsonSerializer
 
 from exceptions import InvalidParameters
 
+log = logging.getLogger(const.LNK)
+
 TOKEN = os.environ['TOKEN']
 if not TOKEN:
     raise Exception('Token should be valid string')
 
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')
-CLIPPER_URL, CLIPPER_TOKEN =os.getenv('CLIPPER_URL', ''), os.getenv('CLIPPER_TOKEN', '')
+CLIPPER_URL, CLIPPER_TOKEN = os.getenv('CLIPPER_URL', ''), os.getenv('CLIPPER_TOKEN', '')  # noqa
 
 os.environ.clear()
 
@@ -126,7 +129,7 @@ async def delete(request: web.Request) -> web.Response:
     deleted = await handlers.delete(uid, cache)
 
     if deleted:
-        return web.Response(status=204, text=f'UID {uid} removed')
+        return web.Response(status=200, text=f'UID {uid} removed')
 
     return web.Response(status=404, text=f'UID {uid} not found')
 
@@ -137,11 +140,15 @@ async def init_cache(app: web.Application):
 
     app['cache'] = cache
 
+    log.debug('cache initialized')
+
 
 async def init_clipper(app: web.Application):
     client = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
 
     app['clipper'] = client
+
+    log.debug('clipper initialized')
 
 
 async def close_cache(app: web.Application):
@@ -167,7 +174,11 @@ async def init_app():
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s [%(levelname)s] %(name)s:%(filename)s:%(lineno)d %(message)s',  # noqa
+        datefmt='%Y-%m-%dT%H:%M:%S'
+    )
 
     loop = asyncio.get_event_loop()
     app = loop.run_until_complete(init_app())

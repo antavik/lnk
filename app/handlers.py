@@ -17,7 +17,7 @@ async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
     return await cache.get(cache_key(uid))
 
 
-async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:
+async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:  # noqa
     return await cache.multi_get((cache_key(uid), clip_cache_key(uid)))
 
 
@@ -42,13 +42,8 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     uid = data.get('uid', uuid.uuid1().hex)
     clip = await clipper.clip(url)
 
-    await cache.multi_set(
-        (
-            (cache_key(uid), url),
-            (clip_cache_key(uid), clip.get('content')),
-        ),
-        ttl=ttl
-    )
+    await cache.add(cache_key(uid), url, ttl=ttl)
+    await cache.add(clip_cache_key(uid), clip.get('content'), ttl=ttl)
 
     return uid
 

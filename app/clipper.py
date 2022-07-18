@@ -5,9 +5,11 @@ import typing as t
 import aiohttp
 import ujson
 
+import constants as const
+
 from urllib.parse import urlparse
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(const.LNK)
 
 
 class Client:
@@ -42,11 +44,11 @@ class Client:
                     self.url.path, json={'url': url}
                 )
             except Exception as e:
-                log.error('error clipping: %s', e)
+                log.error('error clipping: %s', str(e))
 
-                asyncio.sleep(self._retries_timeout)
+                await asyncio.sleep(self._retries_timeout)
             else:
-                log.debug('url %s clipped', url)
+                log.debug('url clipped')
 
                 return await response.json()
 
