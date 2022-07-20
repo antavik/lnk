@@ -118,7 +118,7 @@ async def shortify(request: web.Request) -> web.Response:
         uid = await handlers.shortify(form, cache, clipper)
     except InvalidParameters as e:
         return web.Response(status=400, text=f'Invalid input parameter: {e}')
-    except ValueError as e:
+    except ValueError:
         return web.Response(status=409, text='UID already exists')
 
     return web.Response(status=201, text=uid)
