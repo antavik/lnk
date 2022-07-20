@@ -1,5 +1,5 @@
 # ✂️ lnk
-Small API to cut links. Runs over memory cache or Redis (for persistant links).
+Small API to cut links. Runs over app memory or Redis (for persistant links).
 
 ## Example
 1. Pass your URL to API
