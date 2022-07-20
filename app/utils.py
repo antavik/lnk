@@ -1,4 +1,5 @@
 import re
+import typing as t
 
 from constants import TimeUnit as TU
 
@@ -16,7 +17,7 @@ def parse_ttl(ttl: str) -> tuple[int, TU]:
 
     match = re.fullmatch(pattern, ttl)
     if match is None:
-        raise ValueError(f'Invalid ttl value: {ttl}')
+        raise ValueError(f'invalid ttl value: {ttl}')
 
     groups = match.groupdict()
     number = groups.pop('number')
@@ -39,7 +40,7 @@ def calc_seconds(number: int, unit: TU) -> int:
     try:
         calc = seconds_calc[unit]
     except KeyError as e:
-        raise ValueError(f'Invalid unit argument value: {unit}')
+        raise ValueError(f'invalid unit argument value: {unit}')
 
     return calc(number)
 
@@ -54,3 +55,20 @@ def clip_cache_key(key: str) -> str:
 
 def clip_task_name(uid: str) -> str:
     return f'clip_{uid}'
+
+
+def str2bool(value: str) -> bool:
+    if not isinstance(value, str):
+        raise TypeError('unsupported type')
+
+    true_bool_strings = {'yes', 'y', '1', 'true', 't'}
+    false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}
+
+    string_lower = str(value).lower()
+
+    if string_lower in true_bool_strings:
+        return True
+    elif string_lower in false_bool_strings:
+        return False
+    else:
+        raise ValueError('unsupported string value')

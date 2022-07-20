@@ -22,7 +22,7 @@ log = logging.getLogger(const.LNK)
 
 TOKEN = os.environ['TOKEN']
 if not TOKEN:
-    raise Exception('Token should be valid string')
+    raise EnvironmentError('token should be valid string')
 
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 CACHE = os.getenv('CACHE', 'memory://')

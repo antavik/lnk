@@ -16,6 +16,7 @@ from utils import (
     cache_key,
     clip_cache_key,
     clip_task_name,
+    str2bool,
 )
 from exceptions import InvalidParameters, StillProcessing
 
@@ -34,7 +35,7 @@ async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict
 async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     url = data.get('url')
     if not url:
-        raise InvalidParameters('Url not provided')
+        raise InvalidParameters('url not provided')
 
     ttl_str = data.get('ttl')
     if ttl_str is None:
@@ -53,9 +54,16 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
 
     await cache.add(cache_key(uid), url, ttl=ttl)
 
-    asyncio.Task(
-        _clipper_task(uid, url, ttl, cache, clipper), name=clip_task_name(uid)
-    )
+    try:
+        clip = str2bool(data.get('clip', 'true'))
+    except Exception:
+        raise InvalidParameters('invalid clip value')
+
+    if clip:
+        asyncio.Task(
+            _clipper_task(uid, url, ttl, cache, clipper),
+            name=clip_task_name(uid)
+        )
 
     return uid
 
@@ -66,10 +74,9 @@ async def _clipper_task(
         ttl: int,
         cache: Cache,
         clipper: clipper.Client
-):  # noqa
-    clip = await clipper.clip(url)
-
-    await cache.add(clip_cache_key(uid), clip, ttl=ttl)
+):
+    if clip := await clipper.clip(url):
+        await cache.add(clip_cache_key(uid), clip, ttl=ttl)
 
 
 async def delete(uid: str, cache: Cache) -> bool:
