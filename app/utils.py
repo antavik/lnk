@@ -50,3 +50,7 @@ def cache_key(key: str) -> str:
 
 def clip_cache_key(key: str) -> str:
     return f'clip:{key}'
+
+
+def clip_task_name(uid: str) -> str:
+    return f'clip_{uid}'

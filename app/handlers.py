@@ -1,6 +1,7 @@
 import logging
 import uuid
 import typing as t
+import asyncio
 
 import ujson
 
@@ -9,8 +10,14 @@ import clipper
 
 from aiocache import Cache
 
-from utils import parse_ttl, calc_seconds, cache_key, clip_cache_key
-from exceptions import InvalidParameters
+from utils import (
+    parse_ttl,
+    calc_seconds,
+    cache_key,
+    clip_cache_key,
+    clip_task_name,
+)
+from exceptions import InvalidParameters, StillProcessing
 
 
 async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
@@ -18,6 +25,9 @@ async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
 
 
 async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:  # noqa
+    if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}: 
+        raise StillProcessing()
+
     return await cache.multi_get((cache_key(uid), clip_cache_key(uid)))
 
 
@@ -40,12 +50,26 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
             ttl = calc_seconds(number, unit)
 
     uid = data.get('uid', uuid.uuid1().hex)
-    clip = await clipper.clip(url)
 
     await cache.add(cache_key(uid), url, ttl=ttl)
-    await cache.add(clip_cache_key(uid), clip.get('content'), ttl=ttl)
+
+    asyncio.Task(
+        _clipper_task(uid, url, ttl, cache, clipper), name=clip_task_name(uid)
+    )
 
     return uid
+
+
+async def _clipper_task(
+        uid: str,
+        url: str,
+        ttl: int,
+        cache: Cache,
+        clipper: clipper.Client
+):  # noqa
+    clip = await clipper.clip(url)
+
+    await cache.add(clip_cache_key(uid), clip.get('content'), ttl=ttl)
 
 
 async def delete(uid: str, cache: Cache) -> bool:

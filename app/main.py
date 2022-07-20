@@ -16,7 +16,7 @@ from aiohttp import web
 from aiocache import Cache
 from aiocache.serializers import JsonSerializer
 
-from exceptions import InvalidParameters
+from exceptions import InvalidParameters, StillProcessing
 
 log = logging.getLogger(const.LNK)
 
@@ -79,7 +79,11 @@ async def redirect(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
     cache = request.app['cache']
 
-    url, data = await handlers.clip(uid, cache)
+    try:
+        url, data = await handlers.clip(uid, cache)
+    except StillProcessing:
+        return web.Response(status=202, text='Clip in process')
+
     if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 

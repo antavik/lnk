@@ -14,13 +14,13 @@ log = logging.getLogger(const.LNK)
 
 class Client:
 
-    def __init__(self, url: str, token: str, timeout: int = 3):
+    def __init__(self, url: str, token: str, timeout: int = 5):
         self.url = urlparse(url)
         self.base_url = self.url.geturl().removesuffix(self.url.path)
         self.token = token
         self.timeout = aiohttp.ClientTimeout(total=timeout)
 
-        self._retries = 2
+        self._retries = 3
         self._retries_timeout = 1
 
         if self.base_url and self.token:
@@ -38,15 +38,16 @@ class Client:
         if self._session is None:
             return {}
 
-        for _ in range(self._retries):
+        for retry in range(self._retries):
             try:
                 response = await self._session.post(
                     self.url.path, json={'url': url}
                 )
             except Exception as e:
-                log.error('error clipping: %s', str(e))
+                log.error('error clipping: %s', str(e) or 'empty error message')
 
-                await asyncio.sleep(self._retries_timeout)
+                if retry < (self._retries - 1):
+                    await asyncio.sleep(self._retries_timeout)
             else:
                 log.debug('url clipped')
 
