@@ -50,14 +50,14 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
         else:
             ttl = calc_seconds(number, unit)
 
-    uid = data.get('uid', uuid.uuid1().hex)
-
-    await cache.add(cache_key(uid), url, ttl=ttl)
-
     try:
         clip = str2bool(data.get('clip', 'true'))
     except Exception:
         raise InvalidParameters('invalid clip value')
+
+    uid = data.get('uid', uuid.uuid1().hex)
+
+    await cache.add(cache_key(uid), url, ttl=ttl)
 
     if clip:
         asyncio.Task(
