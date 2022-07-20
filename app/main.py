@@ -34,6 +34,7 @@ CWD = Path.cwd()
 TEMPLATE_PATH = CWD / 'templates'
 BASE_TEMPLATE_FILENAME = 'base.html'
 CLIP_TEMPLATE_FILENAME = 'clip.html'
+STATIC_PATH = CWD / 'static'
 
 rendering_env = j2.Environment(
     loader=j2.FileSystemLoader(TEMPLATE_PATH),
@@ -44,6 +45,7 @@ base_template = rendering_env.get_template(BASE_TEMPLATE_FILENAME)
 clip_template = rendering_env.get_template(CLIP_TEMPLATE_FILENAME)
 
 routes = web.RouteTableDef()
+routes.static('/static', STATIC_PATH)
 
 
 @routes.get('/health/ping')
