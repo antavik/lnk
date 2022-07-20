@@ -87,7 +87,7 @@ async def redirect(request: web.Request) -> web.Response:
     if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 
-    html = await clip_template.render_async(url=url, data=data)
+    html = await clip_template.render_async(url=url, **data)
 
     return web.Response(
         status=200,

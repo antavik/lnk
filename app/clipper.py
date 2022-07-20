@@ -14,7 +14,7 @@ log = logging.getLogger(const.LNK)
 
 class Client:
 
-    def __init__(self, url: str, token: str, timeout: int = 5):
+    def __init__(self, url: str, token: str, timeout: int = 7):
         self.url = urlparse(url)
         self.base_url = self.url.geturl().removesuffix(self.url.path)
         self.token = token

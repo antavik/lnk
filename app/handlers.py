@@ -69,7 +69,7 @@ async def _clipper_task(
 ):  # noqa
     clip = await clipper.clip(url)
 
-    await cache.add(clip_cache_key(uid), clip.get('content'), ttl=ttl)
+    await cache.add(clip_cache_key(uid), clip, ttl=ttl)
 
 
 async def delete(uid: str, cache: Cache) -> bool:
