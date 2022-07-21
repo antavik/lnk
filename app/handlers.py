@@ -55,7 +55,7 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     except Exception:
         raise InvalidParameters('invalid clip value')
 
-    uid = data.get('uid', uuid.uuid1().hex)
+    uid = data.get('uid', uuid.uuid4().hex)
 
     await cache.add(cache_key(uid), url, ttl=ttl)
 
