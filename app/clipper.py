@@ -14,12 +14,13 @@ log = logging.getLogger(const.LNK)
 
 class Client:
 
-    def __init__(self, url: str, token: str, timeout: int = 7):
+    def __init__(self, url: str, token: str, timeout: int = 10):
         self.url = urlparse(url)
         self.base_url = self.url.geturl().removesuffix(self.url.path)
         self.token = token
-        self.timeout = aiohttp.ClientTimeout(total=timeout)
+        self.timeout = timeout
 
+        self._timeout = aiohttp.ClientTimeout(total=self.timeout)
         self._retries = 3
         self._retries_timeout = 1
 
@@ -27,7 +28,7 @@ class Client:
             self._session = aiohttp.ClientSession(
                 base_url=self.base_url,
                 headers={'x-user-id': self.token},
-                timeout=self.timeout,
+                timeout=self._timeout,
                 raise_for_status=True,
                 json_serialize=ujson.dumps
             )
@@ -41,7 +42,7 @@ class Client:
         for retry in range(self._retries):
             try:
                 response = await self._session.post(
-                    self.url.path, json={'url': url}
+                    self.url.path, json={'url': url, 'timeout': self.timeout}
                 )
             except Exception as e:
                 log.error('error clipping: %s', str(e) or 'empty error message')
