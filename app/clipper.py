@@ -39,7 +39,7 @@ class Client:
         if self._session is None:
             return {}
 
-        for retry in range(self._retries):
+        for retry in range(self._retries, 0, -1):  # reverse range
             try:
                 response = await self._session.post(
                     self.url.path, json={'url': url, 'timeout': self.timeout}
@@ -47,7 +47,7 @@ class Client:
             except Exception as e:
                 log.error('error clipping: %s', str(e) or 'empty error message')
 
-                if retry < (self._retries - 1):
+                if retry > 1:
                     await asyncio.sleep(self._retries_timeout)
             else:
                 log.debug('url clipped')

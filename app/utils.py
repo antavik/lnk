@@ -37,9 +37,8 @@ def calc_seconds(number: int, unit: TU) -> int:
         TU.SECONDS: lambda s: s,
     }
 
-    try:
-        calc = seconds_calc[unit]
-    except KeyError as e:
+    calc = seconds_calc.get(unit)
+    if calc is None:
         raise ValueError(f'invalid unit argument value: {unit}')
 
     return calc(number)
