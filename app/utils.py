@@ -63,7 +63,7 @@ def str2bool(value: str) -> bool:
     true_bool_strings = {'yes', 'y', '1', 'true', 't'}
     false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}
 
-    string_lower = str(value).lower()
+    string_lower = value.lower()
 
     if string_lower in true_bool_strings:
         return True
