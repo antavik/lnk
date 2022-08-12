@@ -37,10 +37,8 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     if not url:
         raise InvalidParameters('url not provided')
 
-    ttl_str = data.get('ttl')
-    if ttl_str is None:
-        ttl = const.DEFAULT_TTL
-    elif ttl_str == const.INF:
+    ttl_str = data.get('ttl', const.DEFAULT_TTL)
+    if ttl_str == const.INF_TTL:
         ttl = None
     else:
         try:
