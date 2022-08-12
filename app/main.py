@@ -33,7 +33,8 @@ os.environ.clear()
 CWD = Path.cwd()
 TEMPLATE_PATH = CWD / 'templates'
 BASE_TEMPLATE_FILENAME = 'base.html'
-CLIP_TEMPLATE_FILENAME = 'clip.html'
+TEXT_CONTENT_TEMPLATE_FILENAME = 'text.html'
+HTML_CONTENT_TEMPLATE_FILENAME = 'html.html'
 STATIC_PATH = CWD / 'static'
 
 rendering_env = j2.Environment(
@@ -42,7 +43,8 @@ rendering_env = j2.Environment(
     enable_async=True
 )
 base_template = rendering_env.get_template(BASE_TEMPLATE_FILENAME)
-clip_template = rendering_env.get_template(CLIP_TEMPLATE_FILENAME)
+text_content_template = rendering_env.get_template(TEXT_CONTENT_TEMPLATE_FILENAME)  # noqa
+html_content_template = rendering_env.get_template(HTML_CONTENT_TEMPLATE_FILENAME)  # noqa
 
 routes = web.RouteTableDef()
 routes.static('/static', STATIC_PATH)
@@ -76,8 +78,8 @@ async def redirect(request: web.Request) -> web.Response:
     )
 
 
-@routes.get('/{uid}/clip')
-async def redirect(request: web.Request) -> web.Response:
+@routes.get('/{uid}/text')
+async def text_content(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
     cache = request.app['cache']
 
@@ -89,7 +91,33 @@ async def redirect(request: web.Request) -> web.Response:
     if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 
-    html = await clip_template.render_async(url=url, **data)
+    html = await text_content_template.render_async(url=url, **data)
+
+    return web.Response(
+        status=200,
+        headers={
+            'Cache-Control':'private, max-age=60',
+        },
+        content_type='text/html',
+        charset='utf-8',
+        body=html
+    )
+
+
+@routes.get('/{uid}/html')
+async def html_content(request: web.Request) -> web.Response:
+    uid = request.match_info['uid']
+    cache = request.app['cache']
+
+    try:
+        url, data = await handlers.clip(uid, cache)
+    except StillProcessing:
+        return web.Response(status=202, text='Clip in process')
+
+    if url is None or data is None:
+        return web.Response(status=404, text='Clip not found')
+
+    html = await html_content_template.render_async(url=url, **data)
 
     return web.Response(
         status=200,
