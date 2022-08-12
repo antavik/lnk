@@ -52,7 +52,7 @@ class Client:
             else:
                 log.debug('url clipped')
 
-                return await response.json()
+                return await response.json(loads=ujson.loads)
 
         return {}
 
