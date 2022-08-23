@@ -57,17 +57,12 @@ def clip_task_name(uid: str) -> str:
 
 
 def str2bool(value: str) -> bool:
-    if not isinstance(value, str):
-        raise TypeError('unsupported type')
+    true_bool_strings = {'yes', 'YES', 'y', 'Y', '1', 'true', 'TRUE', 't', 'T'}
+    false_bool_strings = {'no', 'NO', 'n', 'N', '0', 'false', 'FALSE', 'f', 'F', ''}  # noqa
 
-    true_bool_strings = {'yes', 'y', '1', 'true', 't'}
-    false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}
-
-    string_lower = value.lower()
-
-    if string_lower in true_bool_strings:
+    if value in true_bool_strings:
         return True
-    elif string_lower in false_bool_strings:
+    elif value in false_bool_strings:
         return False
     else:
-        raise ValueError('unsupported string value')
+        raise ValueError('unsupported value')
