@@ -16,6 +16,7 @@ from aiohttp import web
 from aiocache import Cache
 from aiocache.serializers import JsonSerializer
 
+from middlewares import compression_middleware
 from exceptions import InvalidParameters, StillProcessing
 
 log = logging.getLogger(const.LNK)
@@ -196,6 +197,7 @@ async def close_clipper(app: web.Application):
 
 async def init_app():
     app = web.Application()
+    app.middlewares.append(compression_middleware)
     app.add_routes(routes)
 
     app.on_startup.append(init_cache)
