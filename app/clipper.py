@@ -58,3 +58,5 @@ class Client:
     async def close(self):
         if self._session is not None:
             await self._session.close()
+
+        log.debug('closed')

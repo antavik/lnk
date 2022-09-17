@@ -194,7 +194,7 @@ async def close_clipper(app: web.Application):
         await clipper.close()
 
 
-async def init_app():
+def init_app():
     app = web.Application()
     app.middlewares.append(compression_middleware)
     app.add_routes(routes)
@@ -215,20 +215,16 @@ def main():
         datefmt='%Y-%m-%dT%H:%M:%S'
     )
 
-    loop = asyncio.new_event_loop()
-
-    app = loop.run_until_complete(init_app())
-
-    web.run_app(app, host=HOST, port=PORT)
+    web.run_app(init_app(), host=HOST, port=PORT)
 
 
 if __name__ == '__main__':
     import sys
 
-    if sys.version_info >= (3, 11):
+    if sys.version_info >= (3, 11):  # TODO: check code below after upgrade to 3.11  # noqa
         with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
             runner.run(main())
     else:
         uvloop.install()
 
-        asyncio.run(main())
+        main()
