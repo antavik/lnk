@@ -15,7 +15,7 @@ dev:
 	-e CLIPPER_URL=$(CLIPPER_URL) \
 	-e CLIPPER_TOKEN=$(CLIPPER_TOKEN) \
 	--mount type=bind,source=$(PWD)/app,target=/home/$(USER)/app \
-	lnk python main.py
+	lnk /usr/share/python3/app/bin/python3.10 main.py
 
 build:
 	docker build -t lnk .
