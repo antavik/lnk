@@ -4,6 +4,7 @@ import os
 import logging
 import asyncio
 
+import uvloop
 import jinja2 as j2
 
 import handlers
@@ -179,9 +180,7 @@ async def init_cache(app: web.Application):
 
 
 async def init_clipper(app: web.Application):
-    client = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
-
-    app['clipper'] = client
+    app['clipper'] = clipper.Client(url=CLIPPER_URL, token=CLIPPER_TOKEN)
 
     log.debug('clipper initialized')
 
@@ -216,11 +215,20 @@ def main():
         datefmt='%Y-%m-%dT%H:%M:%S'
     )
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+
     app = loop.run_until_complete(init_app())
 
     web.run_app(app, host=HOST, port=PORT)
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+
+    if sys.version_info >= (3, 11):
+        with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
+            runner.run(main())
+    else:
+        uvloop.install()
+
+        asyncio.run(main())
