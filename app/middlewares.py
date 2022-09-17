@@ -1,4 +1,4 @@
-from typing import Any, Callable, Coroutine
+import typing as t
 
 from aiohttp import hdrs
 from aiohttp.web import (
@@ -9,7 +9,7 @@ from aiohttp.web import (
     ContentCoding,
 )
 
-HandlerType = Callable[[Any], Coroutine[Any, None, Response]]
+HandlerType = t.Callable[[t.Any], t.Coroutine[t.Any, None, Response]]
 
 
 # idea from https://github.com/mosquito/aiohttp-compress

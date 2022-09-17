@@ -1,6 +1,5 @@
 import logging
 import uuid
-import typing as t
 import asyncio
 
 import ujson
@@ -21,11 +20,11 @@ from utils import (
 from exceptions import InvalidParameters, StillProcessing
 
 
-async def redirect(uid: str, cache: Cache) -> t.Optional[str]:
+async def redirect(uid: str, cache: Cache) -> str | None:
     return await cache.get(cache_key(uid))
 
 
-async def clip(uid: str, cache: Cache) -> tuple[t.Optional[str], t.Optional[dict[str, str]]]:  # noqa
+async def clip(uid: str, cache: Cache) -> tuple[str | None, dict[str, str] | None]:  # noqa
     if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}: 
         raise StillProcessing()
 

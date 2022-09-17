@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import typing as t
 
 import aiohttp
 import ujson
