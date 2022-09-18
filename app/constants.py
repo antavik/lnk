@@ -10,3 +10,6 @@ class TimeUnit(Enum):
     HOURS = 'hours'
     MINUTES = 'minutes'
     SECONDS = 'seconds'
+
+
+KEY_WORDS = {'health',}

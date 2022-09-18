@@ -53,6 +53,8 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
         raise InvalidParameters('invalid clip value')
 
     uid = data.get('uid', uuid.uuid4().hex)
+    if uid in const.KEY_WORDS:
+        raise InvalidParameters(f'"{uid}" couldn\'t be uid')
 
     await cache.add(cache_key(uid), url, ttl=ttl)
 
