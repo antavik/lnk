@@ -43,6 +43,7 @@ class Client:
                 response = await self._session.post(
                     self.url.path, json={'url': url, 'timeout': self.timeout}
                 )
+                response.raise_for_status()
             except Exception as e:
                 log.error('error clipping: %s', str(e) or 'empty error message')
 
