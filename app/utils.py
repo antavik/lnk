@@ -63,5 +63,5 @@ def str2bool(value: str) -> bool:
         return True
     elif value in false_bool_strings:
         return False
-    else:
-        raise ValueError('unsupported value')
+
+    raise ValueError('unsupported value')
