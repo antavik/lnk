@@ -1,6 +1,6 @@
 import re
 
-from constants import TimeUnit as TU
+from constants import TimeUnit as TU, LNK
 
 
 def parse_ttl(ttl: str) -> tuple[int, TU]:
@@ -44,11 +44,11 @@ def calc_seconds(number: int, unit: TU) -> int:
 
 
 def cache_key(key: str) -> str:
-    return f'cache:{key}'
+    return f'{LNK}-url:{key}'
 
 
 def clip_cache_key(key: str) -> str:
-    return f'clip:{key}'
+    return f'{LNK}-clip:{key}'
 
 
 def clip_task_name(uid: str) -> str:
