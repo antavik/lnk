@@ -45,7 +45,7 @@ class Client:
                 )
                 response.raise_for_status()
             except Exception as e:
-                log.error('error clipping: %s', str(e) or 'empty error message')
+                log.warning('error clipping: %s', str(e) or 'empty error message')
 
                 if retry > 1:
                     await asyncio.sleep(self._retries_timeout)

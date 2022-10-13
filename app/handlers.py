@@ -74,8 +74,8 @@ async def _clipper_task(
         cache: Cache,
         clipper: clipper.Client
 ):
-    if clip := await clipper.clip(url):
-        await cache.add(clip_cache_key(uid), clip, ttl=ttl)
+    clip = await clipper.clip(url)
+    await cache.add(clip_cache_key(uid), clip, ttl=ttl)
 
 
 async def delete(uid: str, cache: Cache) -> bool:

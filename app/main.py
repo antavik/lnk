@@ -34,7 +34,9 @@ os.environ.clear()
 
 CWD = Path.cwd()
 TEMPLATE_PATH = CWD / 'templates'
+REDIRECT_TEMPLATE_FILENAME = 'redirect.html'
 BASE_TEMPLATE_FILENAME = 'base.html'
+EMPTY_TEMPLATE_FILENAME = 'empty.html'
 TEXT_CONTENT_TEMPLATE_FILENAME = 'text.html'
 HTML_CONTENT_TEMPLATE_FILENAME = 'html.html'
 STATIC_PATH = CWD / 'static'
@@ -44,9 +46,16 @@ rendering_env = j2.Environment(
     autoescape=True,
     enable_async=True
 )
-base_template = rendering_env.get_template(BASE_TEMPLATE_FILENAME)
-text_content_template = rendering_env.get_template(TEXT_CONTENT_TEMPLATE_FILENAME)  # noqa
-html_content_template = rendering_env.get_template(HTML_CONTENT_TEMPLATE_FILENAME)  # noqa
+redirect_template = rendering_env.get_template(REDIRECT_TEMPLATE_FILENAME)
+empty_content_template = rendering_env.get_template(
+    EMPTY_TEMPLATE_FILENAME, parent=BASE_TEMPLATE_FILENAME
+)
+text_content_template = rendering_env.get_template(
+    TEXT_CONTENT_TEMPLATE_FILENAME, parent=BASE_TEMPLATE_FILENAME
+)
+html_content_template = rendering_env.get_template(
+    HTML_CONTENT_TEMPLATE_FILENAME, parent=BASE_TEMPLATE_FILENAME
+)
 
 routes = web.RouteTableDef()
 routes.static('/static', STATIC_PATH)
@@ -66,7 +75,7 @@ async def redirect(request: web.Request) -> web.Response:
     if url is None:
         return web.Response(status=404, text='UID not found')
 
-    html = await base_template.render_async(url=url)
+    html = await redirect_template.render_async(url=url)
 
     return web.Response(
         status=301,
@@ -90,10 +99,11 @@ async def text_content(request: web.Request) -> web.Response:
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
-    if url is None or data is None:
+    if url is None:
         return web.Response(status=404, text='Clip not found')
 
-    html = await text_content_template.render_async(url=url, **data)
+    template = text_content_template if data else empty_content_template
+    html = await template.render_async(url=url, **data)
 
     return web.Response(
         status=200,
@@ -116,10 +126,11 @@ async def html_content(request: web.Request) -> web.Response:
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
-    if url is None or data is None:
+    if url is None:
         return web.Response(status=404, text='Clip not found')
 
-    html = await html_content_template.render_async(url=url, **data)
+    template = html_content_template if data else empty_content_template
+    html = await template.render_async(url=url, **data)
 
     return web.Response(
         status=200,
