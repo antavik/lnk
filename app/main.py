@@ -99,7 +99,7 @@ async def text_content(request: web.Request) -> web.Response:
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
-    if url is None:
+    if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 
     template = text_content_template if data else empty_content_template
@@ -126,7 +126,7 @@ async def html_content(request: web.Request) -> web.Response:
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
-    if url is None:
+    if url is None or data is None:
         return web.Response(status=404, text='Clip not found')
 
     template = html_content_template if data else empty_content_template
