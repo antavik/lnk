@@ -17,9 +17,8 @@ import settings
 from pathlib import Path
 
 from aiohttp import web
-from aiocache import Cache
-from aiocache.serializers import JsonSerializer
 
+from cache import Redis, GzipJsonSerializer
 from middlewares import compression_middleware
 from exceptions import InvalidParameters, StillProcessing
 
@@ -30,7 +29,9 @@ rendering_env = j2.Environment(
     autoescape=True,
     enable_async=True
 )
-redirect_template = rendering_env.get_template(settings.REDIRECT_TEMPLATE_FILENAME)
+redirect_template = rendering_env.get_template(
+    settings.REDIRECT_TEMPLATE_FILENAME
+)
 empty_content_template = rendering_env.get_template(
     settings.EMPTY_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME
 )
@@ -86,8 +87,10 @@ async def text_content(request: web.Request) -> web.Response:
     if url is None:
         return web.Response(status=404, text='Clip not found')
 
-    template = text_content_template if data else empty_content_template
-    html = await template.render_async(url=url, **data)
+    if data:
+        html= await text_content_template.render_async(url=url, **data)
+    else:
+        html = await empty_content_template.render_async(url=url)
 
     return web.Response(
         status=200,
@@ -113,8 +116,10 @@ async def html_content(request: web.Request) -> web.Response:
     if url is None:
         return web.Response(status=404, text='Clip not found')
 
-    template = html_content_template if data else empty_content_template
-    html = await template.render_async(url=url, **data)
+    if data:
+        html= await html_content_template.render_async(url=url, **data)
+    else:
+        html = await empty_content_template.render_async(url=url)
 
     return web.Response(
         status=200,
@@ -166,22 +171,13 @@ async def delete(request: web.Request) -> web.Response:
 
 
 async def init_cache(app: web.Application):
-
-    class GzipJsonSerializer(JsonSerializer):
-
-        DEFAULT_COMPTESSLEVEL = 8
-
-        def dumps(self, value: t.Any) -> bytes:
-            return gzip.compress(
-                super().dumps(value).encode('utf-8'),
-                compresslevel=self.DEFAULT_COMPTESSLEVEL
-            )
-
-        def loads(self, value: bytes) -> t.Any:
-            return super().loads(gzip.decompress(value).decode())
-
-    cache = Cache.from_url(settings.CACHE)
-    cache.serializer=GzipJsonSerializer()
+    cache = Redis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        serializer=GzipJsonSerializer()
+    )
+    if not await cache.ping():
+        raise ConnectionError('cannot ping cache')
 
     app['cache'] = cache
 

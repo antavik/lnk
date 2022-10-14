@@ -8,8 +8,7 @@ import constants as const
 import settings
 import clipper
 
-from aiocache import Cache
-
+from cache import BaseCache
 from utils import (
     parse_ttl,
     calc_seconds,
@@ -21,18 +20,18 @@ from utils import (
 from exceptions import InvalidParameters, StillProcessing
 
 
-async def redirect(uid: str, cache: Cache) -> str | None:
+async def redirect(uid: str, cache: BaseCache) -> str | None:
     return await cache.get(cache_key(uid))
 
 
-async def clip(uid: str, cache: Cache) -> tuple[str | None, dict[str, str] | None]:  # noqa
+async def clip(uid: str, cache: BaseCache) -> tuple[str | None, dict[str, str] | None]:  # noqa
     if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}: 
         raise StillProcessing()
 
-    return await cache.multi_get((cache_key(uid), clip_cache_key(uid)))
+    return await cache.multi_get(cache_key(uid), clip_cache_key(uid))
 
 
-async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
+async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str:
     url = data.get('url')
     if not url:
         raise InvalidParameters('url not provided')
@@ -57,7 +56,7 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     if uid in const.KEY_WORDS:
         raise InvalidParameters(f'"{uid}" couldn\'t be uid')
 
-    await cache.add(cache_key(uid), url, ttl=ttl)
+    await cache.set(cache_key(uid), url, ttl=ttl)
 
     if clip:
         asyncio.Task(
@@ -72,16 +71,12 @@ async def _clipper_task(
         uid: str,
         url: str,
         ttl: int,
-        cache: Cache,
+        cache: BaseCache,
         clipper: clipper.Client
 ):
     clip = await clipper.clip(url)
-    await cache.add(clip_cache_key(uid), clip, ttl=ttl)
+    await cache.set(clip_cache_key(uid), clip, ttl=ttl)
 
 
-async def delete(uid: str, cache: Cache) -> bool:
-    deleted = 0
-    for key in (cache_key(uid), clip_cache_key(uid)):
-        deleted += await cache.delete(key)
-
-    return bool(deleted)
+async def delete(uid: str, cache: BaseCache) -> bool:
+    return await cache.multi_delete(cache_key(uid), clip_cache_key(uid))

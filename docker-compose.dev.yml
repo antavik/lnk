@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+
+  lnk:
+    image: lnk_dev
+    container_name: lnk_dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+    command: /usr/share/python3/app/bin/python main.py
+    ports:
+      - "8010:8010"
+    volumes:
+      - ./app/:/home/app/app/
+    logging:
+        driver: json-file
+        options:
+            max-size: "10m"
+            max-file: "5"
+
+  redis:
+    image: "redis:6.0.15-alpine"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

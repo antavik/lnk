@@ -9,7 +9,8 @@ if not TOKEN:
 
 HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 
-CACHE = os.getenv('CACHE', 'memory://')
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT')
 
 CLIPPER_URL, CLIPPER_TOKEN = os.getenv('CLIPPER_URL', ''), os.getenv('CLIPPER_TOKEN', '')  # noqa
 
