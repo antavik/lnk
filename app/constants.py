@@ -12,4 +12,4 @@ class TimeUnit(Enum):
     SECONDS = 'seconds'
 
 
-KEY_WORDS = {'health',}
+KEY_WORDS = {'health', 'static',}

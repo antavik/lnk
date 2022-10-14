@@ -5,6 +5,7 @@ import asyncio
 import ujson
 
 import constants as const
+import settings
 import clipper
 
 from aiocache import Cache
@@ -52,7 +53,7 @@ async def shortify(data: dict, cache: Cache, clipper: clipper.Client) -> str:
     except Exception:
         raise InvalidParameters('invalid clip value')
 
-    uid = data.get('uid', uuid.uuid4().hex)
+    uid = data.get('uid', uuid.uuid4().hex[:settings.DEFAULT_UID_LEN])
     if uid in const.KEY_WORDS:
         raise InvalidParameters(f'"{uid}" couldn\'t be uid')
 
