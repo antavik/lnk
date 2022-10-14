@@ -8,8 +8,8 @@ RUN python3.10 -m venv /usr/share/python3/app
 # Setup python env
 COPY ./requirements.txt /etc/
 
-RUN apt update && apt install -yq build-essential && \
-    apt clean && apt autoclean && \
+RUN apt-get update && apt-get install -yq build-essential && \
+    apt-get clean && apt-get autoclean && \
     rm -rf /var/cache/* && \
     rm -rf /var/lib/apt/lists/*
 

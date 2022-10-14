@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{{ url }}" target="_blank" rel="noopener noreferrer">Source</a>
+<details>
+  <summary>Source link. Be careful ⚠️</summary>
+  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+</details>
 <div><p>No content</p></div>
 {% endblock %}
