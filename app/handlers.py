@@ -12,7 +12,7 @@ from cache import BaseCache
 from utils import (
     parse_ttl,
     calc_seconds,
-    cache_key,
+    url_cache_key,
     clip_cache_key,
     clip_task_name,
     str2bool,
@@ -21,14 +21,14 @@ from exceptions import InvalidParameters, StillProcessing
 
 
 async def redirect(uid: str, cache: BaseCache) -> str | None:
-    return await cache.get(cache_key(uid))
+    return await cache.get(url_cache_key(uid))
 
 
 async def clip(uid: str, cache: BaseCache) -> tuple[str | None, dict[str, str] | None]:  # noqa
     if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}: 
         raise StillProcessing()
 
-    return await cache.multi_get(cache_key(uid), clip_cache_key(uid))
+    return await cache.multi_get(url_cache_key(uid), clip_cache_key(uid))
 
 
 async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str:
@@ -56,7 +56,7 @@ async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str
     if uid in const.KEY_WORDS:
         raise InvalidParameters(f'"{uid}" couldn\'t be uid')
 
-    await cache.set(cache_key(uid), url, ttl=ttl)
+    await cache.set(url_cache_key(uid), url, ttl=ttl)
 
     if clip:
         asyncio.Task(
@@ -79,4 +79,4 @@ async def _clipper_task(
 
 
 async def delete(uid: str, cache: BaseCache) -> bool:
-    return await cache.multi_delete(cache_key(uid), clip_cache_key(uid))
+    return await cache.multi_delete(url_cache_key(uid), clip_cache_key(uid))

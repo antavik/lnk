@@ -43,12 +43,12 @@ def calc_seconds(number: int, unit: TU) -> int:
     return calc(number)
 
 
-def cache_key(key: str) -> str:
-    return f'{LNK}-url:{key}'
+def url_cache_key(key: str) -> str:
+    return f'{LNK}-u:{key}'
 
 
 def clip_cache_key(key: str) -> str:
-    return f'{LNK}-clip:{key}'
+    return f'{LNK}-c:{key}'
 
 
 def clip_task_name(uid: str) -> str:

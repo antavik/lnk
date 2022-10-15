@@ -50,7 +50,7 @@ class BaseCache(ABC):
             serializer: t.Optional[BaseSerializer] = None
     ):
         self.host = host
-        self.port = 6379 if port is None else port
+        self.port = port or 6379
         self.serializer = serializer
         self.decode_responses = decode_responses
         self.health_check_interval = health_check_interval

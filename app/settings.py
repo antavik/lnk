@@ -23,7 +23,7 @@ TEXT_CONTENT_TEMPLATE_FILENAME = 'text.html'
 HTML_CONTENT_TEMPLATE_FILENAME = 'html.html'
 STATIC_PATH = CWD / 'static'
 
-LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s:%(filename)s:%(lineno)d %(message)s'  # noqa
+LOG_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
 LOG_DATEFMT = '%Y-%m-%dT%H:%M:%S'
 
 DEFAULT_UID_LEN = 12
