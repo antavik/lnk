@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<details>
-  <summary>Source link. Be careful ⚠️</summary>
-  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
-</details>
+<div class="caution">
+  <details>
+    <summary>Source link. Be careful ⚠️</summary>
+    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+  </details>
+</div>
 <div><p>No content</p></div>
 {% endblock %}

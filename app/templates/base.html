@@ -2,20 +2,31 @@
 <html>
 <head>
   <title>Lnk</title>
+  <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
   <link rel="manifest" href="./static/site.webmanifest">
+  <!-- End favicon -->
+  <meta name="HandheldFriendly" content="True"/>
   <style type="text/css">
     body {
-      width: 60%;
+      width: 70%;
     }
     summary {
       cursor: default;
     }
+    .main-content {
+      margin-top: 5%;
+      margin-left: 5%;
+      font-size: 18px;
+    }
+    .caution {
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div>{% block content %}{% endblock %}</div>
+  <div class="main-content">{% block content %}{% endblock %}</div>
 </body>
 </html>
