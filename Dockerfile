@@ -3,10 +3,12 @@
 #################################################################
 FROM snakepacker/python:all as builder
 
+ARG MODE=prod
+
 RUN python3.10 -m venv /usr/share/python3/app
 
 # Setup python env
-COPY ./requirements.txt /etc/
+COPY ./requirements/ /etc/requirements/
 
 RUN apt-get update && apt-get install -yq build-essential && \
     apt-get clean && apt-get autoclean && \
@@ -14,7 +16,7 @@ RUN apt-get update && apt-get install -yq build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 RUN /usr/share/python3/app/bin/pip install -U pip setuptools wheel && \
-    /usr/share/python3/app/bin/pip install --no-cache-dir -r /etc/requirements.txt
+    /usr/share/python3/app/bin/pip install --no-cache-dir -r /etc/requirements/$MODE.txt
 
 RUN find-libdeps /usr/share/python3/app > /usr/share/python3/app/pkgdeps.txt
 

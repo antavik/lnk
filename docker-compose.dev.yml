@@ -7,8 +7,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - MODE=dev
     environment:
       - REDIS_HOST=redis
+      - TOKEN=token
+      - CLIPPER_URL=
+      - CLIPPER_TOKEN=
     command: /usr/share/python3/app/bin/python main.py
     ports:
       - "8010:8010"
