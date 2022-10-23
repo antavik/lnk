@@ -15,28 +15,49 @@
       height: 100%;
       width: 100%;
     }
+    table {
+      table-layout: fixed;
+    }
     summary {
       cursor: default;
     }
-    footer {
-      font-size: 14px;
-      font-style: italic;
-      text-align: center;
-      margin-bottom: 3%;
-    }
-    .main-content {
-      width: 70%;
+    .base {
       margin-top: 3%;
       margin-left: 3%;
-      margin-bottom: 3%;
       font-size: 18px;
+    }
+    .content {
+      width: 70%;
+    }
+    .footer {
+      font-size: 14px;
+      text-align: center;
+      color: #606060;
+      margin-top: 2%;
+      margin-bottom: 3%;
     }
   </style>
 </head>
-<body>
-  <div class="main-content">{% block content %}{% endblock %}</div>
-  <footer>
-    <p>📎 Lnk</p>
-  </footer>
+<body topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" text="#000000">
+  <table cols="1" height="0" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tbody>
+      <tr>
+        <td>
+          <div class="base">
+            <details>
+              <summary>Source link. Be careful ⚠️</summary>
+              <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+            </details>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td><div class="base content">{% block content %}{% endblock %}</div></td>
+      </tr>
+      <tr>
+        <td><div class="footer"><p>📎 Lnk</p></div></td>
+      </tr>
+    </tbody>
+  </table>
 </body>
 </html>
