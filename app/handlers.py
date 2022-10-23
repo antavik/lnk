@@ -1,11 +1,7 @@
-import logging
 import uuid
 import asyncio
 
-import ujson
-
 import constants as const
-import settings
 import clipper
 
 from cache import BaseCache
@@ -24,14 +20,21 @@ async def redirect(uid: str, cache: BaseCache) -> str | None:
     return await cache.get(url_cache_key(uid))
 
 
-async def clip(uid: str, cache: BaseCache) -> tuple[str | None, dict[str, str] | None]:  # noqa
-    if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}: 
+async def clip(
+        uid: str,
+        cache: BaseCache
+) -> tuple[str | None, dict[str, str] | None]:
+    if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}:
         raise StillProcessing()
 
     return await cache.multi_get(url_cache_key(uid), clip_cache_key(uid))
 
 
-async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str:
+async def shortify(
+        data: dict,
+        cache: BaseCache,
+        clipper: clipper.Client
+) -> str:
     url = data.get('url')
     if not url:
         raise InvalidParameters('url not provided')
@@ -52,7 +55,7 @@ async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str
     except Exception:
         raise InvalidParameters('invalid clip value')
 
-    uid = data.get('uid', uuid.uuid4().hex[:settings.DEFAULT_UID_LEN])
+    uid = data.get('uid', uuid.uuid4().hex[:const.DEFAULT_UID_LEN])
     if uid in const.KEY_WORDS:
         raise InvalidParameters(f'"{uid}" couldn\'t be uid')
 
@@ -70,7 +73,7 @@ async def shortify(data: dict, cache: BaseCache, clipper: clipper.Client) -> str
 async def _clipper_task(
         uid: str,
         url: str,
-        ttl: int,
+        ttl: int | None,
         cache: BaseCache,
         clipper: clipper.Client
 ):

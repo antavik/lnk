@@ -1,5 +1,4 @@
 import os
-import logging
 
 from pathlib import Path
 
@@ -12,7 +11,8 @@ HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT')
 
-CLIPPER_URL, CLIPPER_TOKEN = os.getenv('CLIPPER_URL', ''), os.getenv('CLIPPER_TOKEN', '')  # noqa
+CLIPPER_URL = os.getenv('CLIPPER_URL', '')
+CLIPPER_TOKEN = os.getenv('CLIPPER_TOKEN', '')
 
 CWD = Path.cwd()
 TEMPLATE_PATH = CWD / 'templates'
@@ -25,7 +25,5 @@ STATIC_PATH = CWD / 'static'
 
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
 LOG_DATEFMT = '%Y-%m-%dT%H:%M:%S'
-
-DEFAULT_UID_LEN = 12
 
 os.environ.clear()

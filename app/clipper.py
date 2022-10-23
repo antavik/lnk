@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import typing as t
 
 import aiohttp
 import ujson
@@ -23,6 +24,7 @@ class Client:
         self._retries = 3
         self._retries_timeout = 1
 
+        self._session: t.Optional[aiohttp.ClientSession]
         if self.base_url and self.token:
             self._session = aiohttp.ClientSession(
                 base_url=self.base_url,
@@ -45,7 +47,9 @@ class Client:
                 )
                 response.raise_for_status()
             except Exception as e:
-                log.warning('error clipping: %s', str(e) or 'empty error message')
+                log.warning(
+                    'error clipping: %s', str(e) or 'empty error message'
+                )
 
                 if retry > 1:
                     await asyncio.sleep(self._retries_timeout)

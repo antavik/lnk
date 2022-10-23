@@ -7,7 +7,7 @@ def parse_ttl(ttl: str) -> tuple[int, TU]:
     number = None
     units = None
     pattern = (
-        f'^(?P<number>\d+)'
+        f'^(?P<number>\\d+)'
         f'((?P<{TU.DAYS.value}>d)|'
         f'(?P<{TU.HOURS.value}>h)|'
         f'(?P<{TU.MINUTES.value}>m)|'

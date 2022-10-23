@@ -1,10 +1,7 @@
 #!/usr/local/bin/python
 
-import os
 import logging
 import asyncio
-import gzip
-import typing as t
 
 import uvloop
 import jinja2 as j2
@@ -13,8 +10,6 @@ import handlers
 import clipper
 import constants as const
 import settings
-
-from pathlib import Path
 
 from aiohttp import web
 
@@ -36,10 +31,10 @@ empty_content_template = rendering_env.get_template(
     settings.EMPTY_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME
 )
 text_content_template = rendering_env.get_template(
-    settings.TEXT_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME
-)  # noqa
+    settings.TEXT_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME  # noqa
+)
 html_content_template = rendering_env.get_template(
-    settings.HTML_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME
+    settings.HTML_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME  # noqa
 )  # noqa
 
 routes = web.RouteTableDef()
@@ -66,7 +61,7 @@ async def redirect(request: web.Request) -> web.Response:
         status=301,
         headers={
             'Location': url,
-            'Cache-Control':'private, max-age=60',
+            'Cache-Control': 'private, max-age=60',
         },
         content_type='text/html',
         charset='utf-8',
@@ -88,14 +83,14 @@ async def text_content(request: web.Request) -> web.Response:
         return web.Response(status=404, text='Clip not found')
 
     if data:
-        html= await text_content_template.render_async(url=url, **data)
+        html = await text_content_template.render_async(url=url, **data)
     else:
         html = await empty_content_template.render_async(url=url)
 
     return web.Response(
         status=200,
         headers={
-            'Cache-Control':'private, max-age=60',
+            'Cache-Control': 'private, max-age=60',
         },
         content_type='text/html',
         charset='utf-8',
@@ -117,14 +112,14 @@ async def html_content(request: web.Request) -> web.Response:
         return web.Response(status=404, text='Clip not found')
 
     if data:
-        html= await html_content_template.render_async(url=url, **data)
+        html = await html_content_template.render_async(url=url, **data)
     else:
         html = await empty_content_template.render_async(url=url)
 
     return web.Response(
         status=200,
         headers={
-            'Cache-Control':'private, max-age=60',
+            'Cache-Control': 'private, max-age=60',
         },
         content_type='text/html',
         charset='utf-8',
@@ -173,7 +168,7 @@ async def delete(request: web.Request) -> web.Response:
 async def init_cache(app: web.Application):
     cache = Redis(
         host=settings.REDIS_HOST,
-        port=settings.REDIS_PORT,
+        port=settings.REDIS_PORT if settings.REDIS_PORT is None else int(settings.REDIS_PORT),  # noqa
         serializer=GzipJsonSerializer()
     )
     if not await cache.ping():
