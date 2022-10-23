@@ -38,7 +38,7 @@ class GzipJsonSerializer(BaseSerializer):
         return ujson.loads(gzip.decompress(data))
 
 
-class BaseCache(ABC):
+class BaseStorage(ABC):
 
     @abstractmethod
     async def get(self, key: t.Any) -> t.Any:
@@ -66,7 +66,7 @@ class BaseCache(ABC):
         pass
 
 
-class Redis(BaseCache):
+class Redis(BaseStorage):
 
     def __init__(
             self,
@@ -125,7 +125,7 @@ class Redis(BaseCache):
         return await self._client.ping()
 
 
-class Fake(BaseCache):
+class Fake(BaseStorage):
 
     def __init__(self):
         self._storage = {}

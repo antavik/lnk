@@ -43,11 +43,11 @@ def calc_seconds(number: int, unit: TU) -> int:
     return calc(number)
 
 
-def url_cache_key(key: str) -> str:
+def url_storage_key(key: str) -> str:
     return f'{LNK}-u:{key}'
 
 
-def clip_cache_key(key: str) -> str:
+def clip_storage_key(key: str) -> str:
     return f'{LNK}-c:{key}'
 
 

@@ -4,47 +4,47 @@ import asyncio
 import constants as const
 import clipper
 
-from cache import BaseCache
+from storage import BaseStorage
 from utils import (
     parse_ttl,
     calc_seconds,
-    url_cache_key,
-    clip_cache_key,
+    url_storage_key,
+    clip_storage_key,
     clip_task_name,
     str2bool,
 )
 from exceptions import InvalidParameters, StillProcessing
 
 
-async def redirect(uid: str, cache: BaseCache) -> str | None:
-    return await cache.get(url_cache_key(uid))
+async def redirect(uid: str, storage: BaseStorage) -> str | None:
+    return await storage.get(url_storage_key(uid))
 
 
 async def clip(
         uid: str,
-        cache: BaseCache
+        storage: BaseStorage
 ) -> tuple[str | None, dict[str, str] | None]:
     if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}:
         raise StillProcessing()
 
-    return await cache.multi_get(url_cache_key(uid), clip_cache_key(uid))
+    return await storage.multi_get(url_storage_key(uid), clip_storage_key(uid))
 
 
 async def shortify(
         data: dict,
-        cache: BaseCache,
+        storage: BaseStorage,
         clipper: clipper.BaseClipper
 ) -> str:
     input_args = _ShortifyInput(data)
 
-    await cache.set(
-        url_cache_key(input_args.uid), input_args.url, ttl=input_args.ttl
+    await storage.set(
+        url_storage_key(input_args.uid), input_args.url, ttl=input_args.ttl
     )
 
     if input_args.clip:
         asyncio.Task(
             _clipper_task(
-                input_args.uid, input_args.url, input_args.ttl, cache, clipper
+                input_args.uid, input_args.url, input_args.ttl, storage, clipper  # noqa
             ),
             name=clip_task_name(input_args.uid)
         )
@@ -85,14 +85,14 @@ async def _clipper_task(
         uid: str,
         url: str,
         ttl: int | None,
-        cache: BaseCache,
+        storage: BaseStorage,
         clipper: clipper.BaseClipper
 ):
     clip = await clipper.clip(url)
-    await cache.set(clip_cache_key(uid), clip, ttl=ttl)
+    await storage.set(clip_storage_key(uid), clip, ttl=ttl)
 
 
-async def delete(uid: str, cache: BaseCache) -> bool:
-    deleted = await cache.multi_delete(url_cache_key(uid), clip_cache_key(uid))
+async def delete(uid: str, storage: BaseStorage) -> bool:
+    deleted = await storage.multi_delete(url_storage_key(uid), clip_storage_key(uid))  # noqa
 
     return bool(deleted)

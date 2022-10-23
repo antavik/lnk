@@ -51,16 +51,16 @@ def test_calc_seconds__invalid_inputes__exception(test_input):
         utils.calc_seconds(*test_input)
 
 
-def test_url_cache_key__string__string():
+def test_url_storage_key__string__string():
     test_input = 'test'
-    result = utils.url_cache_key(test_input)
+    result = utils.url_storage_key(test_input)
 
     assert result == f'{LNK}-u:{test_input}'
 
 
-def test_clip_cache_key__string__string():
+def test_clip_storage_key__string__string():
     test_input = 'test'
-    result = utils.clip_cache_key(test_input)
+    result = utils.clip_storage_key(test_input)
 
     assert result == f'{LNK}-c:{test_input}'
 

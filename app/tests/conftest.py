@@ -1,12 +1,14 @@
 import pytest
-import random; random.seed(42)
+import random
 
 from unittest.mock import AsyncMock
 
+random.seed(42)
+
 
 @pytest.fixture
-def mocked_cache():
-    return AsyncMock(name='mocked_cache')
+def mocked_storage():
+    return AsyncMock(name='mocked_storage')
 
 
 @pytest.fixture
