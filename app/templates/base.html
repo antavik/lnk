@@ -8,22 +8,34 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
   <link rel="manifest" href="./static/site.webmanifest">
   <!-- End favicon -->
+  <meta name="viewport" content="width=device-width, initial-scale=0.7 maximum-scale=1.0, user-scalable=0"/>
   <meta name="HandheldFriendly" content="True"/>
   <style type="text/css">
-    body {
-      width: 70%;
+    html {
+      height: 100%;
+      width: 100%;
     }
     summary {
       cursor: default;
     }
+    footer {
+      font-size: 14px;
+      font-style: italic;
+      text-align: center;
+    }
     .main-content {
-      margin-top: 5%;
-      margin-left: 5%;
+      width: 70%;
+      margin-top: 3%;
+      margin-left: 3%;
+      margin-bottom: 3%;
       font-size: 18px;
     }
   </style>
 </head>
 <body>
   <div class="main-content">{% block content %}{% endblock %}</div>
+  <footer>
+    <p>📎 Lnk</p>
+  </footer>
 </body>
 </html>
