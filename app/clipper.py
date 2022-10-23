@@ -7,12 +7,24 @@ import ujson
 
 import constants as const
 
+from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 
 log = logging.getLogger(const.LNK)
 
 
-class Client:
+class BaseClipper(ABC):
+
+    @abstractmethod
+    async def clip(self, url: str) -> dict[str, str]:
+        pass
+
+    @abstractmethod
+    async def close(self):
+        pass
+
+
+class Client(BaseClipper):
 
     def __init__(self, url: str, token: str, timeout: int = 10):
         self.url = urlparse(url)
@@ -65,3 +77,12 @@ class Client:
             await self._session.close()
 
         log.debug('closed')
+
+
+class Fake(BaseClipper):
+
+    async def clip(self, url: str) -> dict[str, str]:
+        return {'test_content': 'test'}
+
+    async def close(self):
+        pass

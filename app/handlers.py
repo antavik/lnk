@@ -33,41 +33,52 @@ async def clip(
 async def shortify(
         data: dict,
         cache: BaseCache,
-        clipper: clipper.Client
+        clipper: clipper.BaseClipper
 ) -> str:
-    url = data.get('url')
-    if not url:
-        raise InvalidParameters('url not provided')
+    input_args = _ShortifyInput(data)
 
-    ttl_str = data.get('ttl', const.DEFAULT_TTL)
-    if ttl_str == const.INF_TTL:
-        ttl = None
-    else:
-        try:
-            number, unit = parse_ttl(ttl_str)
-        except Exception as e:
-            raise InvalidParameters(e)
-        else:
-            ttl = calc_seconds(number, unit)
+    await cache.set(
+        url_cache_key(input_args.uid), input_args.url, ttl=input_args.ttl
+    )
 
-    try:
-        clip = str2bool(data.get('clip', 'true'))
-    except Exception:
-        raise InvalidParameters('invalid clip value')
-
-    uid = data.get('uid', uuid.uuid4().hex[:const.DEFAULT_UID_LEN])
-    if uid in const.KEY_WORDS:
-        raise InvalidParameters(f'"{uid}" couldn\'t be uid')
-
-    await cache.set(url_cache_key(uid), url, ttl=ttl)
-
-    if clip:
+    if input_args.clip:
         asyncio.Task(
-            _clipper_task(uid, url, ttl, cache, clipper),
-            name=clip_task_name(uid)
+            _clipper_task(
+                input_args.uid, input_args.url, input_args.ttl, cache, clipper
+            ),
+            name=clip_task_name(input_args.uid)
         )
 
-    return uid
+    return input_args.uid
+
+
+class _ShortifyInput:
+
+    def __init__(self, data: dict[str, str]):
+        self._data = data
+
+        self.url = self._data.get('url', '')
+        if not self.url:
+            raise InvalidParameters('url not provided')
+
+        self.ttl: int | None = None
+        self.ttl_str = self._data.get('ttl', const.DEFAULT_TTL)
+        if self.ttl_str != const.INF_TTL:
+            try:
+                number, unit = parse_ttl(self.ttl_str)
+            except Exception as e:
+                raise InvalidParameters(e)
+            else:
+                self.ttl = calc_seconds(number, unit)
+
+        try:
+            self.clip = str2bool(self._data.get('clip', 'true'))
+        except Exception:
+            raise InvalidParameters('invalid clip value')
+
+        self.uid = self._data.get('uid', uuid.uuid4().hex[:const.DEFAULT_UID_LEN])  # noqa
+        if self.uid in const.KEY_WORDS:
+            raise InvalidParameters(f'"{self.uid}" couldn\'t be uid')
 
 
 async def _clipper_task(
@@ -75,11 +86,13 @@ async def _clipper_task(
         url: str,
         ttl: int | None,
         cache: BaseCache,
-        clipper: clipper.Client
+        clipper: clipper.BaseClipper
 ):
     clip = await clipper.clip(url)
     await cache.set(clip_cache_key(uid), clip, ttl=ttl)
 
 
 async def delete(uid: str, cache: BaseCache) -> bool:
-    return await cache.multi_delete(url_cache_key(uid), clip_cache_key(uid))
+    deleted = await cache.multi_delete(url_cache_key(uid), clip_cache_key(uid))
+
+    return bool(deleted)

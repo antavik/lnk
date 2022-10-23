@@ -10,10 +10,10 @@ import handlers
 import clipper
 import constants as const
 import settings
+import cache
 
 from aiohttp import web
 
-from cache import Redis, GzipJsonSerializer
 from middlewares import compression_middleware
 from exceptions import InvalidParameters, StillProcessing
 
@@ -166,10 +166,10 @@ async def delete(request: web.Request) -> web.Response:
 
 
 async def init_cache(app: web.Application):
-    cache = Redis(
+    cache = cache.Redis(
         host=settings.REDIS_HOST,
         port=settings.REDIS_PORT if settings.REDIS_PORT is None else int(settings.REDIS_PORT),  # noqa
-        serializer=GzipJsonSerializer()
+        serializer=cache.GzipJsonSerializer()
     )
     if not await cache.ping():
         raise ConnectionError('cannot ping cache')

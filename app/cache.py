@@ -54,7 +54,7 @@ class BaseCache(ABC):
             key: t.Any,
             value: t.Any,
             ttl: t.Optional[int | float] = None
-    ) -> t.Any:
+    ):
         pass
 
     @abstractmethod
@@ -112,7 +112,7 @@ class Redis(BaseCache):
             key: t.Any,
             value: t.Any,
             ttl: t.Optional[int | float] = None
-    ) -> t.Any:
+    ):
         if self.serializer is not None:
             value = self.serializer.dumps(value)
 
@@ -123,3 +123,39 @@ class Redis(BaseCache):
 
     async def ping(self) -> bool:
         return await self._client.ping()
+
+
+class Fake(BaseCache):
+
+    def __init__(self):
+        self._storage = {}
+
+    async def get(self, key: t.Any) -> t.Any:
+        return self._storage.get(key)
+
+    async def multi_get(self, *keys: t.Any) -> t.Iterable[t.Any]:
+        return [self._storage.get(k) for k in keys]
+
+    async def set(
+            self,
+            key: t.Any,
+            value: t.Any,
+            ttl: t.Optional[int | float] = None
+    ):
+        self._storage[key] = value
+
+    async def multi_delete(self, *keys: t.Any) -> int:
+        deleted = 0
+
+        for k in keys:
+            try:
+                del self._storage[k]
+            except KeyError:
+                continue
+            else:
+                deleted += 1
+
+        return deleted
+
+    async def ping(self) -> bool:
+        return True

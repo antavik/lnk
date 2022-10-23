@@ -18,7 +18,7 @@ def parse_ttl(ttl: str) -> tuple[int, TU]:
     if match is None:
         raise ValueError(f'invalid ttl value: {ttl}')
 
-    groups = match.groupdict()
+    groups: dict = match.groupdict()
     number = groups.pop('number')
 
     for units, match in groups.items():
