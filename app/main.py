@@ -35,7 +35,7 @@ text_content_template = rendering_env.get_template(
 )
 html_content_template = rendering_env.get_template(
     settings.HTML_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME  # noqa
-)  # noqa
+)
 
 routes = web.RouteTableDef()
 routes.static('/static', settings.STATIC_PATH)
