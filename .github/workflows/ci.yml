@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  run_tests_and_chekers:
 
     runs-on: ubuntu-latest
 
