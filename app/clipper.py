@@ -36,34 +36,31 @@ class Client(BaseClipper):
         self._retries = 3
         self._retries_timeout = 1
 
-        self._session: t.Optional[aiohttp.ClientSession]
+        self._session: t.Optional[aiohttp.ClientSession] = None
         if self.base_url and self.token:
             self._session = aiohttp.ClientSession(
                 base_url=self.base_url,
                 headers={'x-user-id': self.token},
                 timeout=self._timeout,
                 raise_for_status=True,
-                json_serialize=ujson.dumps
+                json_serialize=ujson.dumps,
             )
-        else:
-            self._session = None
 
     async def clip(self, url: str) -> dict[str, str]:
         if self._session is None:
             return {}
 
-        for retry in range(self._retries, 0, -1):  # reverse range
+        for retry in range(1, self._retries+1):
             try:
                 response = await self._session.post(
                     self.url.path, json={'url': url, 'timeout': self.timeout}
                 )
-                response.raise_for_status()
             except Exception as e:
                 log.warning(
                     'error clipping: %s', str(e) or 'empty error message'
                 )
 
-                if retry > 1:
+                if retry < self._retries:
                     await asyncio.sleep(self._retries_timeout)
             else:
                 log.debug('url clipped')
