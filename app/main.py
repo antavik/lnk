@@ -41,7 +41,7 @@ routes = web.RouteTableDef()
 routes.static('/static', settings.STATIC_PATH)
 
 
-@routes.get('/health/ping')
+@routes.get('/ping')
 async def view(request: web.Request) -> web.Response:
     return web.Response(text='pong')
 
@@ -58,7 +58,7 @@ async def redirect(request: web.Request) -> web.Response:
     html = await redirect_template.render_async(url=url)
 
     return web.Response(
-        status=301,
+        status=302,
         headers={
             'Location': url,
             'Cache-Control': 'private, max-age=60',
