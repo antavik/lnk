@@ -2,12 +2,12 @@ from enum import Enum
 
 LNK = 'lnk'
 
-KEY_WORDS = {'health', 'static'}
+KEY_WORDS = {'health', 'static', 'ping', 'lnk'}
 
 DEFAULT_TTL = '12h'
 INF_TTL = 'inf'
 
-DEFAULT_UID_LEN = 10
+DEFAULT_UID_LEN = 6
 
 
 class TimeUnit(Enum):

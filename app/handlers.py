@@ -1,6 +1,8 @@
 import uuid
 import asyncio
 
+import shortuuid
+
 import constants as const
 import clipper
 
@@ -54,6 +56,8 @@ async def shortify(
 
 class _ShortifyInput:
 
+    __slots__ = ('_data', 'url', 'ttl', 'ttl_str', 'clip', 'uid')
+
     def __init__(self, data: dict[str, str]):
         self._data = data
 
@@ -76,7 +80,7 @@ class _ShortifyInput:
         except Exception:
             raise InvalidParameters('invalid clip value')
 
-        self.uid = self._data.get('uid', uuid.uuid4().hex[:const.DEFAULT_UID_LEN])  # noqa
+        self.uid = self._data.get('uid', shortuuid.random(length=const.DEFAULT_UID_LEN))  # noqa
         if self.uid in const.KEY_WORDS:
             raise InvalidParameters(f'"{self.uid}" couldn\'t be uid')
 
