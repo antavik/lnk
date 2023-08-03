@@ -1,3 +1,5 @@
+import typing as t
+
 from constants import TimeUnit, LNK, SECONDS_CALC_MAP, TTL_REGEXP
 
 
@@ -43,7 +45,7 @@ _TRUE_BOOL_STRINGS = {'yes', 'YES', 'y', 'Y', '1', 'true', 'TRUE', 't', 'T'}
 _FALSE_BOOL_STRINGS = {'no', 'NO', 'n', 'N', '0', 'false', 'FALSE', 'f', 'F', ''}  # noqa
 
 
-def str2bool(value: str) -> bool:
+def str2bool(value: t.Union[str, bool]) -> bool:
     if isinstance(value, bool):
         return value
 
