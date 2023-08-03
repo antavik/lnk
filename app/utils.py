@@ -1,22 +1,11 @@
-import re
-
-from constants import TimeUnit as TU, LNK
+from constants import TimeUnit, LNK, SECONDS_CALC_MAP, TTL_REGEXP
 
 
-_TTL_REGEXP = re.compile(
-    f'^(?P<number>\\d+)'
-    f'((?P<{TU.DAYS.value}>d)|'
-    f'(?P<{TU.HOURS.value}>h)|'
-    f'(?P<{TU.MINUTES.value}>m)|'
-    f'(?P<{TU.SECONDS.value}>s))'
-)
-
-
-def parse_ttl(ttl: str) -> tuple[int, TU]:
+def parse_ttl(ttl: str) -> tuple[int, TimeUnit]:
     number = None
     units = None
 
-    match = _TTL_REGEXP.fullmatch(ttl)
+    match = TTL_REGEXP.fullmatch(ttl)
     if match is None:
         raise ValueError(f'invalid ttl value: {ttl}')
 
@@ -27,19 +16,11 @@ def parse_ttl(ttl: str) -> tuple[int, TU]:
         if match is not None:
             break
 
-    return (int(number), TU(units))
+    return (int(number), TimeUnit(units))
 
 
-_SECONDS_CALC_MAP = {
-    TU.DAYS: lambda d: d * 24 * 60 * 60,
-    TU.HOURS: lambda h: h * 60 * 60,
-    TU.MINUTES: lambda m: m * 60,
-    TU.SECONDS: lambda s: s,
-}
-
-
-def calc_seconds(number: int, unit: TU) -> int:
-    calc = _SECONDS_CALC_MAP.get(unit)
+def calc_seconds(number: int, unit: TimeUnit) -> int:
+    calc = SECONDS_CALC_MAP.get(unit)
     if calc is None:
         raise ValueError(f'invalid unit argument value: {unit}')
 
