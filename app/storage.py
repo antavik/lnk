@@ -65,6 +65,10 @@ class BaseStorage(ABC):
     async def ping(self) -> bool:
         pass
 
+    @abstractmethod
+    async def close(self):
+        pass
+
 
 class Redis(BaseStorage):
 
@@ -123,6 +127,14 @@ class Redis(BaseStorage):
 
     async def ping(self) -> bool:
         return await self._client.ping()
+
+    async def close(self):
+        if self._client is None:
+            return
+
+        await self._client.close()
+
+        self._client = None
 
 
 class Fake(BaseStorage):
