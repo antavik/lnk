@@ -17,6 +17,13 @@ from utils import (
 from exceptions import InvalidParameters, StillProcessing
 
 
+async def healthcheck(storage: BaseStorage) -> bool:
+    try:
+        return await storage.ping()
+    except Exception:
+        return False
+
+
 async def redirect(uid: str, storage: BaseStorage) -> str | None:
     return await storage.get(url_storage_key(uid))
 

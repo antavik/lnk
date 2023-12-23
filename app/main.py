@@ -42,8 +42,26 @@ routes.static('/static', settings.STATIC_PATH)
 
 
 @routes.get('/ping')
-async def view(request: web.Request) -> web.Response:
-    return web.Response(text='pong')
+async def view(_: web.Request) -> web.Response:
+    return web.Response(text='pong', headers={'Cache-Control': 'no-store'})
+
+
+@routes.get('/health')
+async def health(request: web.Request) -> web.Response:
+    storage = request.app['storage']
+
+    healthy = await handlers.healthcheck(storage)
+    if healthy:
+        return web.Response(
+            headers={'Cache-Control': 'no-store'},
+            text='healthy',
+        )
+
+    return web.Response(
+        headers={'Cache-Control': 'no-store'},
+        status=500,
+        text='unhealthy',
+    )
 
 
 @routes.get('/{uid}')
