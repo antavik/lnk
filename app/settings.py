@@ -6,7 +6,7 @@ TOKEN = os.environ['TOKEN']
 if not TOKEN:
     raise EnvironmentError('token should be valid string')
 
-HOST, PORT = os.getenv('HOST', '0.0.0.0'), os.getenv('PORT', '8010')
+HOST, PORT = os.getenv('HOST', '0.0.0.0'), int(os.getenv('PORT', '8010'))
 
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT')
