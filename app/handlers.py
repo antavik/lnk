@@ -13,6 +13,7 @@ from utils import (
     clip_storage_key,
     clip_task_name,
     str2bool,
+    seconds_to_str_time,
 )
 from exceptions import InvalidParameters, StillProcessing
 
@@ -31,11 +32,14 @@ async def redirect(uid: str, storage: BaseStorage) -> str | None:
 async def clip(
         uid: str,
         storage: BaseStorage
-) -> tuple[str | None, dict[str, str] | None]:
+) -> tuple[str | None, dict[str, str] | None, str]:
     if clip_task_name(uid) in {f.get_name() for f in asyncio.all_tasks()}:
         raise StillProcessing()
 
-    return await storage.multi_get(url_storage_key(uid), clip_storage_key(uid))
+    url, data = await storage.multi_get(url_storage_key(uid), clip_storage_key(uid))  # noqa
+    ttl = await storage.ttl(url_storage_key(uid))
+
+    return url, data, seconds_to_str_time(ttl)
 
 
 async def shortify(

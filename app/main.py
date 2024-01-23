@@ -93,36 +93,29 @@ async def text_content(request: web.Request) -> web.Response:
     storage = request.app['storage']
 
     try:
-        url, data = await handlers.clip(uid, storage)
+        url, data, _ = await handlers.clip(uid, storage)
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
     if url is None:
         return web.Response(status=404, text='Clip not found')
 
-    if data:
-        html = await text_content_template.render_async(url=url, **data)
-    else:
-        html = await empty_content_template.render_async(url=url)
-
     return web.Response(
         status=200,
-        headers={
-            'Cache-Control': 'private, max-age=60',
-        },
+        headers={'Cache-Control': 'private, max-age=60'},
         content_type='text/html',
         charset='utf-8',
-        body=html
+        body=data['textContent'] if data else ''
     )
 
 
-@routes.get('/{uid}/html')
+@routes.get('/{uid}/preview')
 async def html_content(request: web.Request) -> web.Response:
     uid = request.match_info['uid']
     storage = request.app['storage']
 
     try:
-        url, data = await handlers.clip(uid, storage)
+        url, data, ttl = await handlers.clip(uid, storage)
     except StillProcessing:
         return web.Response(status=202, text='Clip in process')
 
@@ -130,15 +123,13 @@ async def html_content(request: web.Request) -> web.Response:
         return web.Response(status=404, text='Clip not found')
 
     if data:
-        html = await html_content_template.render_async(url=url, **data)
+        html = await html_content_template.render_async(url=url, ttl=ttl, **data)
     else:
-        html = await empty_content_template.render_async(url=url)
+        html = await empty_content_template.render_async(url=url, ttl=ttl)
 
     return web.Response(
         status=200,
-        headers={
-            'Cache-Control': 'private, max-age=60',
-        },
+        headers={'Cache-Control': 'private, max-age=60'},
         content_type='text/html',
         charset='utf-8',
         body=html

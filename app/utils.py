@@ -29,6 +29,10 @@ def calc_seconds(number: int, unit: TimeUnit) -> int:
     return calc(number)
 
 
+def seconds_to_str_time(seconds: int) -> str:
+    return f'{seconds // 3600}h {seconds % 3600 // 60}m'
+
+
 def url_storage_key(key: str) -> str:
     return f'{LNK}-u:{key}'
 
