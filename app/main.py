@@ -30,9 +30,6 @@ redirect_template = rendering_env.get_template(
 empty_content_template = rendering_env.get_template(
     settings.EMPTY_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME
 )
-text_content_template = rendering_env.get_template(
-    settings.TEXT_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME  # noqa
-)
 html_content_template = rendering_env.get_template(
     settings.HTML_CONTENT_TEMPLATE_FILENAME, parent=settings.BASE_TEMPLATE_FILENAME  # noqa
 )
