@@ -5,7 +5,7 @@ FROM snakepacker/python:all as builder
 
 ARG MODE=prod
 
-RUN python3.10 -m venv /usr/share/python3/app
+RUN python3.11 -m venv /usr/share/python3/app
 
 # Setup python env
 COPY ./requirements/ /etc/requirements/
@@ -23,7 +23,7 @@ RUN find-libdeps /usr/share/python3/app > /usr/share/python3/app/pkgdeps.txt
 #################################################################
 ####################### TARGET STAGE ############################
 #################################################################
-FROM snakepacker/python:3.10
+FROM snakepacker/python:3.11
 
 ARG USER=app
 ARG HOST=0.0.0.0
