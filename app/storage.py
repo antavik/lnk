@@ -111,6 +111,9 @@ class Redis(BaseStorage):
 
         return values
 
+    async def ttl(self, key: t.Any) -> int:
+        return await self._client.ttl(key)
+
     async def set(
             self,
             key: t.Any,
