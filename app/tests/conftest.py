@@ -39,3 +39,8 @@ def ttl():
 @pytest.fixture
 def clip():
     return {'test_content': 'test'}
+
+
+@pytest.fixture
+def random_int():
+    return random.randint(1000, 2000)

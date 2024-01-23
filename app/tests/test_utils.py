@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 import utils
@@ -97,3 +99,9 @@ def test_str2bool___valid_inputes__valid_output(test_input, expected):
 def test_str2bool__invalid_inputes__exception(test_input):
     with pytest.raises(ValueError):
         utils.str2bool(test_input)
+
+
+def test_seconds_to_str_time__random_input__formated_str(random_int):
+    time = utils.seconds_to_str_time(random_int)
+
+    assert re.match(r'\d+h \d+m', time)

@@ -123,7 +123,7 @@ async def html_content(request: web.Request) -> web.Response:
         return web.Response(status=404, text='Clip not found')
 
     if data:
-        html = await html_content_template.render_async(url=url, ttl=ttl, **data)
+        html = await html_content_template.render_async(url=url, ttl=ttl, **data)  # noqa
     else:
         html = await empty_content_template.render_async(url=url, ttl=ttl)
 

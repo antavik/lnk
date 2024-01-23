@@ -21,8 +21,12 @@ async def test_redirect__mocked_storage_value(mocked_storage, url, uid):
 
 @pytest.mark.asyncio
 async def test_clip__mocked_storage__value(mocked_storage, url, uid):
-    expected = (url, {'test_key', 'test_value'})
-    mocked_storage.multi_get.return_value = expected
+    mget_return = (url, {'test_key', 'test_value'})
+    ttl_return = 1000
+    expected = (*mget_return, utils.seconds_to_str_time(ttl_return))
+
+    mocked_storage.multi_get.return_value = mget_return
+    mocked_storage.ttl.return_value = ttl_return
 
     with patch('handlers.clip_task_name') as mocked_clip_task_name:
         result = await handlers.clip(uid, mocked_storage)
